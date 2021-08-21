@@ -1,5 +1,7 @@
 FROM node:14.17.3-alpine AS build
 
+RUN apk add g++ make python
+
 WORKDIR /app
 
 COPY package.json package-lock.json ./

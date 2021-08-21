@@ -1,9 +1,32 @@
 import {Router} from 'express';
+import {celebrate, Joi, Segments} from 'celebrate';
+import * as offersService from './offers-service';
+import {CreateOfferRequest, CreateOfferResponse} from './dto';
 
 const router = Router();
 
-router.get('/offers', (_req, res) => {
-  res.json({message: 'Hello, from /offers!'});
-});
+router.post(
+  '/offers',
+  celebrate({
+    [Segments.BODY]: Joi.object().keys({
+      title: Joi.string().required(),
+      description: Joi.string(),
+    }),
+  }),
+  async (req, res) => {
+    const request = req.body as CreateOfferRequest;
+
+    const offer = await offersService.createOffer(
+      request.title,
+      request.description
+    );
+
+    const response: CreateOfferResponse = {
+      id: offer.id,
+    };
+
+    res.json(response);
+  }
+);
 
 export {router};
