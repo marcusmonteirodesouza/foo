@@ -1,4 +1,4 @@
-import * as express from 'express';
+import express from 'express';
 import {router as offersRouter} from './offers';
 
 const app = express();

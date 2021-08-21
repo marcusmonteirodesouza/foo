@@ -1,7 +1,7 @@
 import {app} from './app';
+import {config} from './config';
+import {logger} from './logger';
 
-const port = 3001;
-
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`);
+app.listen(config.port, () => {
+  logger.info('%s listening on port %d', config.log.name, config.port);
 });
