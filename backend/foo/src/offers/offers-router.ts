@@ -13,19 +13,23 @@ router.post(
       description: Joi.string(),
     }),
   }),
-  async (req, res) => {
-    const request = req.body as CreateOfferRequest;
+  async (req, res, next) => {
+    try {
+      const request = req.body as CreateOfferRequest;
 
-    const offer = await offersService.createOffer(
-      request.title,
-      request.description
-    );
+      const offer = await offersService.createOffer(
+        request.title,
+        request.description
+      );
 
-    const response: CreateOfferResponse = {
-      id: offer.id,
-    };
+      const response: CreateOfferResponse = {
+        id: offer.id,
+      };
 
-    res.json(response);
+      res.json(response);
+    } catch (err) {
+      next(err);
+    }
   }
 );
 

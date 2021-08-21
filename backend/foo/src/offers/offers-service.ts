@@ -1,4 +1,5 @@
 import {nanoid} from 'nanoid';
+import {db} from '../db';
 import {Offer} from './offer';
 
 export async function createOffer(
@@ -10,6 +11,13 @@ export async function createOffer(
     title,
     description,
   };
+
+  const document = db.doc(`/offers/${offer.id}`);
+
+  await document.set({
+    title: offer.title,
+    description: offer.description,
+  });
 
   return offer;
 }

@@ -7,10 +7,11 @@
     "node": "14"
   },
   "scripts": {
+    "format:terraform": "terraform fmt -recursive",
     "lint": "gts lint",
     "clean": "gts clean",
     "compile": "tsc",
-    "fix": "gts fix",
+    "fix": "npm run format:terraform && gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -35,6 +36,7 @@
     "yargs": "^17.1.1"
   },
   "dependencies": {
+    "@google-cloud/firestore": "^4.14.2",
     "@google-cloud/logging-bunyan": "^3.1.0",
     "bunyan": "^1.8.15",
     "celebrate": "^15.0.0",
