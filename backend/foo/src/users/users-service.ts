@@ -38,7 +38,12 @@ export async function getUserById(id: string): Promise<User | undefined> {
     return;
   }
 
-  return snapshot.data() as User;
+  const documentData = snapshot.data() as User;
+
+  return {
+    id,
+    uid: documentData.uid
+  }
 }
 
 async function getUserByUid(uid: string): Promise<User | undefined> {
@@ -50,5 +55,12 @@ async function getUserByUid(uid: string): Promise<User | undefined> {
     return;
   }
 
-  return snapshot.docs[0].data() as User;
+  const document = snapshot.docs[0];
+
+  const documentData = snapshot.docs[0].data();
+
+  return {
+    id: document.id,
+    uid
+  }
 }

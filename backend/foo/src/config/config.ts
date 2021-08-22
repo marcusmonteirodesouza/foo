@@ -28,7 +28,7 @@ const envVarsSchema = Joi.object({
     .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
     .default('info'),
   K_SERVICE: Joi.string().default('foo'), // See https://cloud.google.com/run/docs/reference/container-contract#env-vars,
-  GOOGLE_PROJECT_ID: Joi.string().required(),
+  GOOGLE_CLOUD_PROJECT: Joi.string().required(),
 })
   .unknown()
   .required();
@@ -46,7 +46,7 @@ const config: Config = {
     name: envVars.K_SERVICE,
   },
   google: {
-    projectId: envVars.GOOGLE_PROJECT_ID,
+    projectId: envVars.GOOGLE_CLOUD_PROJECT,
   },
 };
 

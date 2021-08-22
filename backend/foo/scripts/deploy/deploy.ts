@@ -19,7 +19,11 @@ function submitToCloudBuild(project: string): string {
 }
 
 function deployToCloudRun(project: string, region: string, image: string) {
-  const deployToCloudRunCmd = `gcloud run deploy ${serviceName} --project ${project} --image ${image} --region ${region} --allow-unauthenticated`;
+  const googleCloudProjectEnvVar = `GOOGLE_CLOUD_PROJECT=${project}`;
+
+  const envVars = [googleCloudProjectEnvVar].join(',');
+
+  const deployToCloudRunCmd = `gcloud run deploy ${serviceName} --project ${project} --image ${image} --region ${region} --set-env-vars=${envVars}`;
 
   childProcess.execSync(deployToCloudRunCmd, {stdio: 'inherit'});
 }
