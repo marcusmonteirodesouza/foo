@@ -10,6 +10,9 @@ type Config = {
     level: LogLevelString;
     name: string;
   };
+  google: {
+    projectId: string;
+  };
 };
 
 // See https://en.wikipedia.org/wiki/Port_(computer_networking)
@@ -17,14 +20,15 @@ const minPort = 0;
 const maxPort = 65535;
 
 const envVarsSchema = Joi.object({
-  K_SERVICE: Joi.string().default('foo'), // See https://cloud.google.com/run/docs/reference/container-contract#env-vars
-  LOG_LEVEL: Joi.string()
-    .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
-    .default('info'),
   NODE_ENV: Joi.string()
     .valid('development', 'test', 'production')
     .default('production'),
   PORT: Joi.number().integer().min(minPort).max(maxPort).default(8080),
+  LOG_LEVEL: Joi.string()
+    .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
+    .default('info'),
+  K_SERVICE: Joi.string().default('foo'), // See https://cloud.google.com/run/docs/reference/container-contract#env-vars,
+  GOOGLE_PROJECT_ID: Joi.string().required(),
 })
   .unknown()
   .required();
@@ -35,12 +39,15 @@ if (error) {
 }
 
 const config: Config = {
+  env: envVars.NODE_ENV,
+  port: envVars.PORT,
   log: {
     level: envVars.LOG_LEVEL,
     name: envVars.K_SERVICE,
   },
-  env: envVars.NODE_ENV,
-  port: envVars.PORT,
+  google: {
+    projectId: envVars.GOOGLE_PROJECT_ID,
+  },
 };
 
 export {config};

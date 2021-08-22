@@ -2,6 +2,7 @@ import {isCelebrateError} from 'celebrate';
 import {Response} from 'express';
 import {ReasonPhrases, StatusCodes} from 'http-status-codes';
 import {logger} from '../../logger';
+import {AppError, CommonErrors} from '../errors';
 import {ErrorResponse} from './error-response';
 
 class ErrorHandler {
@@ -22,6 +23,37 @@ class ErrorHandler {
 
       res.status(StatusCodes.BAD_REQUEST);
       res.json(response);
+    } else if (error instanceof AppError) {
+      let response: ErrorResponse;
+
+      switch (error.commonError) {
+        case CommonErrors.Forbidden:
+          response = this.makeErrorResponse(
+            ReasonPhrases.FORBIDDEN,
+            error.message
+          );
+          res.status(StatusCodes.FORBIDDEN);
+          res.json(response);
+          return;
+
+        case CommonErrors.NotFound:
+          response = this.makeErrorResponse(
+            ReasonPhrases.NOT_FOUND,
+            error.message
+          );
+          res.status(StatusCodes.NOT_FOUND);
+          res.json(response);
+          return;
+
+        case CommonErrors.Unauthorized:
+          response = this.makeErrorResponse(
+            ReasonPhrases.UNAUTHORIZED,
+            error.message
+          );
+          res.status(StatusCodes.UNAUTHORIZED);
+          res.json(response);
+          return;
+      }
     } else {
       const response = this.makeErrorResponse(
         ReasonPhrases.INTERNAL_SERVER_ERROR,
