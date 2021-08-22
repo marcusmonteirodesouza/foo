@@ -22,9 +22,10 @@ export async function getOrCreateUser(
 
   const document = db.doc(`/users/${user.id}`);
 
-  await document.set({
-    uid: user.uid,
-  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {id, ...documentData} = user;
+
+  await document.set(documentData);
 
   return user;
 }
@@ -38,12 +39,12 @@ export async function getUserById(id: string): Promise<User | undefined> {
     return;
   }
 
-  const documentData = snapshot.data() as User;
+  const documentData = snapshot.data() as Omit<User, 'id'>;
 
   return {
     id,
-    uid: documentData.uid
-  }
+    ...documentData,
+  };
 }
 
 async function getUserByUid(uid: string): Promise<User | undefined> {
@@ -57,10 +58,10 @@ async function getUserByUid(uid: string): Promise<User | undefined> {
 
   const document = snapshot.docs[0];
 
-  const documentData = snapshot.docs[0].data();
+  const documentData = snapshot.docs[0].data() as Omit<User, 'id'>;
 
   return {
     id: document.id,
-    uid
-  }
+    ...documentData,
+  };
 }

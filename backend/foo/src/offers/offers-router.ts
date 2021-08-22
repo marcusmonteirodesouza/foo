@@ -4,6 +4,7 @@ import {usersService} from '../users';
 import * as offersService from './offers-service';
 import {CreateOfferRequest, CreateOfferResponse} from './dto';
 import {authenticateJwt} from '../auth/middleware';
+import {StatusCodes} from 'http-status-codes';
 
 const router = Router();
 
@@ -11,12 +12,6 @@ router.post(
   '/offers',
   authenticateJwt,
   celebrate({
-    [Segments.HEADERS]: Joi.object()
-      .keys({
-        authorization: Joi.string().required(),
-      })
-      .unknown()
-      .required(),
     [Segments.BODY]: Joi.object().keys({
       title: Joi.string().required(),
       description: Joi.string(),
@@ -37,7 +32,7 @@ router.post(
         id: offer.id,
       };
 
-      res.json(response);
+      res.status(StatusCodes.CREATED).json(response);
     } catch (err) {
       next(err);
     }

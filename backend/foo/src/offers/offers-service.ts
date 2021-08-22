@@ -28,11 +28,10 @@ export async function createOffer(
 
   const document = db.doc(`/offers/${offer.id}`);
 
-  await document.set({
-    userId,
-    title: offer.title,
-    description: offer.description,
-  });
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const {id, ...documentData} = offer;
+
+  await document.set(documentData);
 
   return offer;
 }

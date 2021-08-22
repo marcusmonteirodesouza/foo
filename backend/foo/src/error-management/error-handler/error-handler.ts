@@ -21,8 +21,7 @@ class ErrorHandler {
         errorMessage
       );
 
-      res.status(StatusCodes.BAD_REQUEST);
-      res.json(response);
+      res.status(StatusCodes.BAD_REQUEST).json(response);
     } else if (error instanceof AppError) {
       let response: ErrorResponse;
 
@@ -32,8 +31,7 @@ class ErrorHandler {
             ReasonPhrases.FORBIDDEN,
             error.message
           );
-          res.status(StatusCodes.FORBIDDEN);
-          res.json(response);
+          res.status(StatusCodes.FORBIDDEN).json(response);
           return;
 
         case CommonErrors.NotFound:
@@ -41,8 +39,7 @@ class ErrorHandler {
             ReasonPhrases.NOT_FOUND,
             error.message
           );
-          res.status(StatusCodes.NOT_FOUND);
-          res.json(response);
+          res.status(StatusCodes.NOT_FOUND).json(response);
           return;
 
         case CommonErrors.Unauthorized:
@@ -50,8 +47,7 @@ class ErrorHandler {
             ReasonPhrases.UNAUTHORIZED,
             error.message
           );
-          res.status(StatusCodes.UNAUTHORIZED);
-          res.json(response);
+          res.status(StatusCodes.UNAUTHORIZED).json(response);
           return;
       }
     } else {
@@ -60,8 +56,7 @@ class ErrorHandler {
         'Something went wrong'
       );
 
-      res.status(StatusCodes.INTERNAL_SERVER_ERROR);
-      res.json(response);
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json(response);
     }
   }
 
