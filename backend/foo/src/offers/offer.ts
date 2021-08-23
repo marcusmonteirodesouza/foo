@@ -5,6 +5,7 @@ export interface Offer {
   userId: string;
   title: string;
   description?: string;
+  categories: string[];
   center: Coordinates;
   radius: number;
 }

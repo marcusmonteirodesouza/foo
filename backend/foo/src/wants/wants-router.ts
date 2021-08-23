@@ -16,6 +16,7 @@ router.post(
   celebrate({
     [Segments.BODY]: Joi.object().keys({
       title: Joi.string().required(),
+      categories: Joi.array().items(Joi.string()).required(),
       center: Joi.object().keys({
         latitude: Joi.number().required(),
         longitude: Joi.number().required(),
@@ -31,6 +32,7 @@ router.post(
 
       const want = await wantsService.createWant(user.id, {
         title: request.title,
+        categories: request.categories,
         center: request.center,
         radius: request.radius,
       });

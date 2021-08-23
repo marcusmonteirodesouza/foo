@@ -8,6 +8,7 @@ import {Coordinates} from '../common/types';
 type CreateOfferOptions = {
   title: string;
   description?: string;
+  categories: string[];
   center: Coordinates;
   radius: number;
 };
@@ -27,6 +28,7 @@ export async function createOffer(
     userId,
     title: options.title,
     description: options.description,
+    categories: options.categories,
     center: options.center,
     radius: options.radius,
   };

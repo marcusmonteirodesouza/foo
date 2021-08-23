@@ -7,6 +7,7 @@ import {nanoid} from 'nanoid';
 
 type CreateWantOptions = {
   title: string;
+  categories: string[];
   center: Coordinates;
   radius: number;
 };
@@ -25,6 +26,7 @@ export async function createWant(
     id: nanoid(),
     userId: user.id,
     title: options.title,
+    categories: options.categories,
     center: options.center,
     radius: options.radius,
   };

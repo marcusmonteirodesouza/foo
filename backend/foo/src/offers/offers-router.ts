@@ -17,6 +17,7 @@ router.post(
     [Segments.BODY]: Joi.object().keys({
       title: Joi.string().required(),
       description: Joi.string(),
+      categories: Joi.array().items(Joi.string()),
       center: Joi.object().keys({
         latitude: Joi.number().required(),
         longitude: Joi.number().required(),
@@ -33,6 +34,7 @@ router.post(
       const offer = await offersService.createOffer(user.id, {
         title: request.title,
         description: request.description,
+        categories: request.categories,
         center: request.center,
         radius: request.radius,
       });
