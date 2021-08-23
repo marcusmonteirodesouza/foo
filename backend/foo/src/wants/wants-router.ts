@@ -1,10 +1,12 @@
 import {Router} from 'express';
 import {celebrate, Joi, Segments} from 'celebrate';
-import {StatusCodes} from 'http-status-codes';
+import {ReasonPhrases, StatusCodes} from 'http-status-codes';
 import {authenticateJwt} from '../auth/middleware';
 import {usersService} from '../users';
 import * as wantsService from './wants-service';
 import {CreateWantRequest, CreateWantResponse} from './dto';
+import {logger} from '../logger';
+import {AppError, CommonErrors} from '../error-management/errors';
 
 const router = Router();
 
@@ -51,6 +53,27 @@ router.get('/wants', authenticateJwt, async (req, res, next) => {
     const wants = await wantsService.listWantsByUserId(user.id);
 
     res.json(wants);
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.delete('/wants/:id', authenticateJwt, async (req, res, next) => {
+  try {
+    const {id} = req.params;
+
+    const user = await usersService.getOrCreateUser({uid: req.uid});
+
+    const want = await wantsService.getWant(id);
+
+    if (user.id !== want.userId) {
+      logger.error(`User ${user.id} not allowed to delete want ${want.id}`);
+      throw new AppError(CommonErrors.Forbidden, ReasonPhrases.FORBIDDEN);
+    }
+
+    await wantsService.deleteWant(want.id);
+
+    res.status(StatusCodes.NO_CONTENT).json();
   } catch (err) {
     next(err);
   }

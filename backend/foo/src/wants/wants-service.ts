@@ -39,6 +39,21 @@ export async function createWant(
   return want;
 }
 
+export async function getWant(id: string): Promise<Want> {
+  const snapshot = await db.doc(`/wants/${id}`).get();
+
+  if (!snapshot.exists) {
+    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+  }
+
+  const documentData = snapshot.data() as Omit<Want, 'id'>;
+
+  return {
+    id,
+    ...documentData,
+  };
+}
+
 export async function listWantsByUserId(userId: string): Promise<Want[]> {
   const user = await usersService.getUserById(userId);
 
@@ -57,4 +72,16 @@ export async function listWantsByUserId(userId: string): Promise<Want[]> {
       ...documentData,
     };
   });
+}
+
+export async function deleteWant(id: string): Promise<void> {
+  const document = db.doc(`/wants/${id}`);
+
+  const snapshot = await document.get();
+
+  if (!snapshot.exists) {
+    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+  }
+
+  await document.delete();
 }
