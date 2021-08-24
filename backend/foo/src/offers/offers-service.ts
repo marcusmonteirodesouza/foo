@@ -47,7 +47,7 @@ export async function getOfferById(id: string): Promise<Offer> {
   const snapshot = await db.doc(`/${offersCollectionPath}/${id}`).get();
 
   if (!snapshot.exists) {
-    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+    throw new AppError(CommonErrors.NotFound, `Offer ${id} not found`);
   }
 
   const documentData = snapshot.data() as Omit<Offer, 'id'>;
@@ -85,7 +85,7 @@ export async function deleteOfferById(id: string): Promise<void> {
   const snapshot = await document.get();
 
   if (!snapshot.exists) {
-    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+    throw new AppError(CommonErrors.NotFound, `Offer ${id} not found`);
   }
 
   await document.delete();

@@ -17,9 +17,9 @@ describe('users-service', () => {
 
   describe('getOrCreateUser', () => {
     it('Given the User does not exist then should create it', async () => {
-      const id = 'new-user-id';
+      const userId = 'new-user-id';
 
-      jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(id);
+      jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(userId);
 
       const options: usersService.CreateUserOptions = {
         uid: faker.datatype.uuid(),
@@ -27,14 +27,14 @@ describe('users-service', () => {
 
       const result = await usersService.getOrCreateUser(options);
 
-      const document = await db.doc(`/${usersCollectionPath}/${id}`).get();
+      const document = await db
+        .doc(`/${usersCollectionPath}/${result.id}`)
+        .get();
 
       const documentData = document.data() as Omit<User, 'id'>;
 
-      expect(documentData).toStrictEqual(options);
-
       expect(result).toStrictEqual({
-        id,
+        id: userId,
         ...documentData,
       });
     });
@@ -45,10 +45,9 @@ describe('users-service', () => {
         uid: faker.datatype.uuid(),
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {id, ...userData} = user;
+      const {id: userId, ...userData} = user;
 
-      await db.doc(`${usersCollectionPath}/${user.id}`).set(userData);
+      await db.doc(`${usersCollectionPath}/${userId}`).set(userData);
 
       const documentsListBefore = await db
         .collection(usersCollectionPath)
@@ -79,12 +78,11 @@ describe('users-service', () => {
         uid: faker.datatype.uuid(),
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const {id, ...userData} = user;
+      const {id: userId, ...userData} = user;
 
-      await db.doc(`${usersCollectionPath}/${user.id}`).set(userData);
+      await db.doc(`${usersCollectionPath}/${userId}`).set(userData);
 
-      const result = await usersService.getUserById(user.id);
+      const result = await usersService.getUserById(userId);
 
       expect(result).toStrictEqual(user);
     });

@@ -2,25 +2,34 @@ import faker from 'faker';
 import nanoid from 'nanoid';
 import {db} from '../../db';
 import {AppError, CommonErrors} from '../../error-management/errors';
-import {usersService, User} from '../../users';
-import {Want} from '../want';
-import * as wantsService from '../wants-service';
+import {usersService} from '../../users';
+import {User} from '../../users';
+import {Offer} from '../offer';
+import * as offersService from '../offers-service';
 
-describe('wants-service', () => {
-  const wantsCollectionPath = 'wants';
+describe('offers-service', () => {
+  const offersCollectionPath = 'offers';
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
   afterEach(async () => {
-    await db.recursiveDelete(db.collection(wantsCollectionPath));
+    await db.recursiveDelete(db.collection(offersCollectionPath));
   });
 
-  describe('createWant', () => {
-    const options: wantsService.CreateWantOptions = {
-      title: 'Pizzas and pasta',
-      categories: ['pizza', 'pasta', 'food', 'italian'],
+  describe('createOffer', () => {
+    const options: offersService.CreateOfferOptions = {
+      title: 'Pepperoni Pizza Promotion',
+      description: 'Pepperoni pizza with 50% off!',
+      categories: [
+        'pizza',
+        'promotion',
+        'offer',
+        'discount',
+        'italian',
+        'food',
+      ],
       center: {
         latitude: Number.parseFloat(faker.address.latitude()),
         longitude: Number.parseFloat(faker.address.longitude()),
@@ -28,11 +37,7 @@ describe('wants-service', () => {
       radius: faker.datatype.number(),
     };
 
-    it('Should create a Want', async () => {
-      const wantId = 'new-want-id';
-
-      jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(wantId);
-
+    it('Should create an Offer', async () => {
       const user: User = {
         id: faker.datatype.uuid(),
         uid: faker.datatype.uuid(),
@@ -40,21 +45,25 @@ describe('wants-service', () => {
 
       jest.spyOn(usersService, 'getUserById').mockResolvedValueOnce(user);
 
-      const result = await wantsService.createWant(user.id, options);
+      const offerId = 'my-new-offer';
+
+      jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(offerId);
+
+      const result = await offersService.createOffer(user.id, options);
 
       const document = await db
-        .doc(`${wantsCollectionPath}/${result.id}`)
+        .doc(`${offersCollectionPath}/${result.id}`)
         .get();
 
-      const documentData = document.data() as Omit<Want, 'id'>;
+      const documentData = document.data() as Omit<Offer, 'id'>;
 
       expect(result).toStrictEqual({
-        id: wantId,
+        id: offerId,
         ...documentData,
       });
     });
 
-    it('Given user does not exist then should throw not found', async () => {
+    it('Given User does not exist then should throw not found', async () => {
       const userId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -62,19 +71,19 @@ describe('wants-service', () => {
         `User ${userId} not found`
       );
 
-      await expect(wantsService.createWant(userId, options)).rejects.toThrow(
+      await expect(offersService.createOffer(userId, options)).rejects.toThrow(
         expectedError
       );
     });
   });
 
-  describe('getWantById', () => {
-    it('Should return a Want', async () => {
-      const want: Want = {
+  describe('getOfferById', () => {
+    it('Should return an Offer', async () => {
+      const offer: Offer = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
-        title: 'Haircuts, sallons, manicures, pedicures',
-        categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
+        title: 'Brazilian Wax for $35!',
+        categories: ['beauty', 'hair', 'wax'],
         center: {
           latitude: Number.parseFloat(faker.address.latitude()),
           longitude: Number.parseFloat(faker.address.longitude()),
@@ -82,31 +91,31 @@ describe('wants-service', () => {
         radius: faker.datatype.number(),
       };
 
-      const {id: wantId, ...wantData} = want;
+      const {id: offerId, ...documentData} = offer;
 
-      await db.doc(`${wantsCollectionPath}/${wantId}`).set(wantData);
+      await db.doc(`${offersCollectionPath}/${offerId}`).set(documentData);
 
-      const result = await wantsService.getWantById(wantId);
+      const result = await offersService.getOfferById(offerId);
 
-      expect(result).toStrictEqual(want);
+      expect(result).toStrictEqual(offer);
     });
 
-    it('Given the Want does not exist then should throw not found', async () => {
-      const wantId = faker.datatype.uuid();
+    it('Given Offer does not exist then should throw not found', async () => {
+      const offerId = faker.datatype.uuid();
 
       const expectedError = new AppError(
         CommonErrors.NotFound,
-        `Want ${wantId} not found`
+        `Offer ${offerId} not found`
       );
 
-      await expect(wantsService.getWantById(wantId)).rejects.toThrow(
+      await expect(offersService.getOfferById(offerId)).rejects.toThrow(
         expectedError
       );
     });
   });
 
-  describe('listWantsByUserId', () => {
-    it("Should return all the User's Wants", async () => {
+  describe('listOffersByUserId', () => {
+    it("Should return all the User's Offers", async () => {
       const user: User = {
         id: 'my-user-id',
         uid: faker.datatype.uuid(),
@@ -114,11 +123,11 @@ describe('wants-service', () => {
 
       jest.spyOn(usersService, 'getUserById').mockResolvedValueOnce(user);
 
-      const userWants: Want[] = [
+      const userOffers: Offer[] = [
         {
           id: faker.datatype.uuid(),
           userId: user.id,
-          title: 'Pizzas and pasta',
+          title: 'Delicious pizzas and pasta',
           categories: ['pizza', 'pasta', 'food', 'italian'],
           center: {
             latitude: Number.parseFloat(faker.address.latitude()),
@@ -129,7 +138,7 @@ describe('wants-service', () => {
         {
           id: faker.datatype.uuid(),
           userId: user.id,
-          title: 'Haircuts, sallons, manicures, pedicures',
+          title: 'All for $20! Haircut, manicure, and pedicure',
           categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
           center: {
             latitude: Number.parseFloat(faker.address.latitude()),
@@ -139,22 +148,22 @@ describe('wants-service', () => {
         },
       ];
 
-      const anotherWant: Want = {
-        ...userWants[0],
+      const anotherOffer: Offer = {
+        ...userOffers[0],
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
       };
 
       await Promise.all(
-        [...userWants, anotherWant].map(async want => {
-          const {id, ...wantData} = want;
-          await db.doc(`${wantsCollectionPath}/${id}`).set(wantData);
+        [...userOffers, anotherOffer].map(async want => {
+          const {id, ...offerData} = want;
+          await db.doc(`${offersCollectionPath}/${id}`).set(offerData);
         })
       );
 
-      const result = await wantsService.listWantsByUserId(user.id);
+      const result = await offersService.listOffersByUserId(user.id);
 
-      expect(result).toEqual(expect.arrayContaining(userWants));
+      expect(result).toEqual(expect.arrayContaining(userOffers));
     });
 
     it('Given the User does not exist then should throw not found', async () => {
@@ -165,18 +174,18 @@ describe('wants-service', () => {
         `User ${userId} not found`
       );
 
-      await expect(wantsService.listWantsByUserId(userId)).rejects.toThrow(
+      await expect(offersService.listOffersByUserId(userId)).rejects.toThrow(
         expectedError
       );
     });
   });
 
-  describe('deleteWantById', () => {
-    it('Should delete a Want', async () => {
-      const want: Want = {
+  describe('deleteOfferById', () => {
+    it('Should delete an Offer', async () => {
+      const offer: Offer = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
-        title: 'Haircuts, sallons, manicures, pedicures',
+        title: 'All for $20! Haircut, manicure, and pedicure',
         categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
         center: {
           latitude: Number.parseFloat(faker.address.latitude()),
@@ -185,26 +194,26 @@ describe('wants-service', () => {
         radius: faker.datatype.number(),
       };
 
-      const {id, ...wantData} = want;
+      const {id, ...wantData} = offer;
 
-      await db.doc(`${wantsCollectionPath}/${id}`).set(wantData);
+      await db.doc(`${offersCollectionPath}/${id}`).set(wantData);
 
-      await wantsService.deleteWantById(id);
+      await offersService.deleteOfferById(id);
 
-      const document = await db.doc(`${wantsCollectionPath}/${id}`).get();
+      const document = await db.doc(`${offersCollectionPath}/${id}`).get();
 
       expect(document.exists).toBe(false);
     });
 
-    it('Given the Want does not exist then should throw not found', async () => {
-      const wantId = faker.datatype.uuid();
+    it('Given the Offer does not exist then should throw not found', async () => {
+      const offerId = faker.datatype.uuid();
 
       const expectedError = new AppError(
         CommonErrors.NotFound,
-        `Want ${wantId} not found`
+        `Offer ${offerId} not found`
       );
 
-      await expect(wantsService.deleteWantById(wantId)).rejects.toThrow(
+      await expect(offersService.deleteOfferById(offerId)).rejects.toThrow(
         expectedError
       );
     });

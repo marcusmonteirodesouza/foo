@@ -15,7 +15,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "test": "firebase emulators:exec --only firestore \"jest --detectOpenHandles --coverage\"",
-    "posttest": "npm run lint",
+    "posttest": "gts fix",
     "dev": "concurrently \"firebase emulators:start --only firestore\" \"ts-node-dev -r dotenv/config src/index.ts\"",
     "prestart": "npm run compile",
     "start": "node -r dotenv/config build/src/index.js",
