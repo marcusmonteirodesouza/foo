@@ -28,7 +28,7 @@ const envVarsSchema = Joi.object({
     .valid('trace', 'debug', 'info', 'warn', 'error', 'fatal')
     .default('info'),
   K_SERVICE: Joi.string().default('foo'), // See https://cloud.google.com/run/docs/reference/container-contract#env-vars,
-  GOOGLE_CLOUD_PROJECT: Joi.string().required(),
+  GCLOUD_PROJECT: Joi.string().required(), // See https://firebase.google.com/docs/emulator-suite/connect_firestore#admin_sdks
 })
   .unknown()
   .required();
