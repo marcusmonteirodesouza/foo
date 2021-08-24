@@ -2,7 +2,9 @@ import {nanoid} from 'nanoid';
 import {db} from '../db';
 import {User} from './user';
 
-type CreateUserOptions = {
+const usersCollectionPath = 'users';
+
+export type CreateUserOptions = {
   uid: string;
 };
 
@@ -20,7 +22,7 @@ export async function getOrCreateUser(
     uid: options.uid,
   };
 
-  const document = db.doc(`/users/${user.id}`);
+  const document = db.doc(`/${usersCollectionPath}/${user.id}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {id, ...documentData} = user;
@@ -31,7 +33,7 @@ export async function getOrCreateUser(
 }
 
 export async function getUserById(id: string): Promise<User | undefined> {
-  const snapshot = await db.doc(`/users/${id}`).get();
+  const snapshot = await db.doc(`/${usersCollectionPath}/${id}`).get();
 
   if (!snapshot.exists) {
     return;
@@ -47,7 +49,7 @@ export async function getUserById(id: string): Promise<User | undefined> {
 
 async function getUserByUid(uid: string): Promise<User | undefined> {
   const snapshot = await db
-    .collection('users')
+    .collection(usersCollectionPath)
     .where('uid', '==', uid)
     .limit(1)
     .get();

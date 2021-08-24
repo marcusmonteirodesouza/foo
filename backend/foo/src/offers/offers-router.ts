@@ -68,14 +68,14 @@ router.delete('/offers/:id', authenticateJwt, async (req, res, next) => {
 
     const user = await usersService.getOrCreateUser({uid: req.uid});
 
-    const offer = await offersService.getOffer(id);
+    const offer = await offersService.getOfferById(id);
 
     if (user.id !== offer.userId) {
       logger.error(`User ${user.id} not allowed to delete offer ${offer.id}`);
       throw new AppError(CommonErrors.Forbidden, ReasonPhrases.FORBIDDEN);
     }
 
-    await offersService.deleteOffer(offer.id);
+    await offersService.deleteOfferById(offer.id);
 
     res.status(StatusCodes.NO_CONTENT).json();
   } catch (err) {

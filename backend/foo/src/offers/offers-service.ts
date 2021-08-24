@@ -5,7 +5,9 @@ import {Offer} from './offer';
 import {AppError, CommonErrors} from '../error-management/errors';
 import {Coordinates} from '../common/types';
 
-type CreateOfferOptions = {
+const offersCollectionPath = 'offers';
+
+export type CreateOfferOptions = {
   title: string;
   description?: string;
   categories: string[];
@@ -36,13 +38,13 @@ export async function createOffer(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {id, ...documentData} = offer;
 
-  await db.doc(`/offers/${offer.id}`).set(documentData);
+  await db.doc(`/${offersCollectionPath}/${offer.id}`).set(documentData);
 
   return offer;
 }
 
-export async function getOffer(id: string): Promise<Offer> {
-  const snapshot = await db.doc(`/offers/${id}`).get();
+export async function getOfferById(id: string): Promise<Offer> {
+  const snapshot = await db.doc(`/${offersCollectionPath}/${id}`).get();
 
   if (!snapshot.exists) {
     throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
@@ -64,7 +66,7 @@ export async function listOffersByUserId(userId: string): Promise<Offer[]> {
   }
 
   const snapshot = await db
-    .collection('offers')
+    .collection(offersCollectionPath)
     .where('userId', '==', userId)
     .get();
 
@@ -77,8 +79,8 @@ export async function listOffersByUserId(userId: string): Promise<Offer[]> {
   });
 }
 
-export async function deleteOffer(id: string): Promise<void> {
-  const document = db.doc(`/offers/${id}`);
+export async function deleteOfferById(id: string): Promise<void> {
+  const document = db.doc(`/${offersCollectionPath}/${id}`);
 
   const snapshot = await document.get();
 

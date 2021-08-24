@@ -5,7 +5,9 @@ import {AppError, CommonErrors} from '../error-management/errors';
 import {Want} from './want';
 import {nanoid} from 'nanoid';
 
-type CreateWantOptions = {
+const wantsCollectionPath = 'wants';
+
+export type CreateWantOptions = {
   title: string;
   categories: string[];
   center: Coordinates;
@@ -31,7 +33,7 @@ export async function createWant(
     radius: options.radius,
   };
 
-  const document = db.doc(`/wants/${want.id}`);
+  const document = db.doc(`/${wantsCollectionPath}/${want.id}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const {id, ...documentData} = want;
@@ -41,11 +43,11 @@ export async function createWant(
   return want;
 }
 
-export async function getWant(id: string): Promise<Want> {
-  const snapshot = await db.doc(`/wants/${id}`).get();
+export async function getWantById(id: string): Promise<Want> {
+  const snapshot = await db.doc(`/${wantsCollectionPath}/${id}`).get();
 
   if (!snapshot.exists) {
-    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+    throw new AppError(CommonErrors.NotFound, `Want ${id} not found`);
   }
 
   const documentData = snapshot.data() as Omit<Want, 'id'>;
@@ -63,9 +65,10 @@ export async function listWantsByUserId(userId: string): Promise<Want[]> {
     throw new AppError(CommonErrors.NotFound, `User ${userId} not found`);
   }
 
-  const collection = db.collection('wants');
-
-  const snapshot = await collection.where('userId', '==', userId).get();
+  const snapshot = await db
+    .collection(wantsCollectionPath)
+    .where('userId', '==', userId)
+    .get();
 
   return snapshot.docs.map(doc => {
     const documentData = doc.data() as Omit<Want, 'id'>;
@@ -76,13 +79,13 @@ export async function listWantsByUserId(userId: string): Promise<Want[]> {
   });
 }
 
-export async function deleteWant(id: string): Promise<void> {
-  const document = db.doc(`/wants/${id}`);
+export async function deleteWantById(id: string): Promise<void> {
+  const document = db.doc(`/${wantsCollectionPath}/${id}`);
 
   const snapshot = await document.get();
 
   if (!snapshot.exists) {
-    throw new AppError(CommonErrors.NotFound, `Document ${id} not found`);
+    throw new AppError(CommonErrors.NotFound, `Want ${id} not found`);
   }
 
   await document.delete();
