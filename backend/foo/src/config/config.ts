@@ -46,7 +46,7 @@ const config: Config = {
     name: envVars.K_SERVICE,
   },
   google: {
-    projectId: envVars.GOOGLE_CLOUD_PROJECT,
+    projectId: envVars.GCLOUD_PROJECT,
   },
 };
 

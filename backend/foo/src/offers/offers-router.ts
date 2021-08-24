@@ -12,8 +12,12 @@ const router = Router();
 
 router.post(
   '/offers',
-  authenticateJwt,
   celebrate({
+    [Segments.HEADERS]: Joi.object()
+      .keys({
+        authorization: Joi.string(),
+      })
+      .unknown(),
     [Segments.BODY]: Joi.object().keys({
       title: Joi.string().required(),
       description: Joi.string(),
@@ -25,6 +29,7 @@ router.post(
       radius: Joi.number().required(),
     }),
   }),
+  authenticateJwt,
   async (req, res, next) => {
     try {
       const user = await usersService.getOrCreateUser({uid: req.uid});
@@ -50,37 +55,59 @@ router.post(
   }
 );
 
-router.get('/offers', authenticateJwt, async (req, res, next) => {
-  try {
-    const user = await usersService.getOrCreateUser({uid: req.uid});
+router.get(
+  '/offers',
+  celebrate({
+    [Segments.HEADERS]: Joi.object()
+      .keys({
+        authorization: Joi.string(),
+      })
+      .unknown(),
+  }),
+  authenticateJwt,
+  async (req, res, next) => {
+    try {
+      const user = await usersService.getOrCreateUser({uid: req.uid});
 
-    const offers = await offersService.listOffersByUserId(user.id);
+      const offers = await offersService.listOffersByUserId(user.id);
 
-    res.json(offers);
-  } catch (err) {
-    next(err);
-  }
-});
-
-router.delete('/offers/:id', authenticateJwt, async (req, res, next) => {
-  try {
-    const {id} = req.params;
-
-    const user = await usersService.getOrCreateUser({uid: req.uid});
-
-    const offer = await offersService.getOfferById(id);
-
-    if (user.id !== offer.userId) {
-      logger.error(`User ${user.id} not allowed to delete offer ${offer.id}`);
-      throw new AppError(CommonErrors.Forbidden, ReasonPhrases.FORBIDDEN);
+      res.json(offers);
+    } catch (err) {
+      next(err);
     }
-
-    await offersService.deleteOfferById(offer.id);
-
-    res.status(StatusCodes.NO_CONTENT).json();
-  } catch (err) {
-    next(err);
   }
-});
+);
+
+router.delete(
+  '/offers/:id',
+  celebrate({
+    [Segments.HEADERS]: Joi.object()
+      .keys({
+        authorization: Joi.string(),
+      })
+      .unknown(),
+  }),
+  authenticateJwt,
+  async (req, res, next) => {
+    try {
+      const {id} = req.params;
+
+      const user = await usersService.getOrCreateUser({uid: req.uid});
+
+      const offer = await offersService.getOfferById(id);
+
+      if (user.id !== offer.userId) {
+        logger.error(`User ${user.id} not allowed to delete offer ${offer.id}`);
+        throw new AppError(CommonErrors.Forbidden, ReasonPhrases.FORBIDDEN);
+      }
+
+      await offersService.deleteOfferById(offer.id);
+
+      res.status(StatusCodes.NO_CONTENT).json();
+    } catch (err) {
+      next(err);
+    }
+  }
+);
 
 export {router};

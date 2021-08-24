@@ -1,7 +1,7 @@
 export default {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  setupFiles: ['./jest-setup-env.ts'],
+  setupFiles: ['./jest-setup-files.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/build/'],
   coverageThreshold: {
     global: {
