@@ -55,21 +55,12 @@ router.post(
 );
 
 router.get(
-  '/offers',
-  celebrate({
-    [Segments.HEADERS]: Joi.object()
-      .keys({
-        authorization: Joi.string().required(),
-      })
-      .unknown()
-      .required(),
-  }),
-  authenticateJwt,
+  '/offers/:id',
   async (req, res, next) => {
     try {
-      const user = await usersService.getOrCreateUser({ uid: req.uid });
+      const { id } = req.params;
 
-      const offers = await offersService.listOffersByUserId(user.id);
+      const offers = await offersService.listOffersByUserId(id);
 
       res.json(offers);
     } catch (err) {

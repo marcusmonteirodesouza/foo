@@ -181,8 +181,8 @@ describe('offers-router', () => {
     });
   });
 
-  describe('GET /offers', () => {
-    const url = '/offers';
+  describe('GET /offers/:id', () => {
+    const url = `/offers/${user.id}`;
 
     const offers: Offer[] = [
       {
@@ -199,56 +199,16 @@ describe('offers-router', () => {
     ];
 
     it("should return the list of the User's offers", (done) => {
-      jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValue(user);
-
       jest
         .spyOn(offersService, 'listOffersByUserId')
         .mockResolvedValueOnce(offers);
 
       request(app)
         .get(url)
-        .set('authorization', authorization)
         .expect('content-type', /json/)
         .expect(200)
         .then((response) => {
           expect(response.body).toStrictEqual(offers);
-          done();
-        });
-    });
-
-    it('given no authorization header then should return bad request', (done) => {
-      const expectedResponse: ErrorResponse = {
-        error: {
-          code: ReasonPhrases.BAD_REQUEST,
-          message: '"authorization" is required',
-        },
-      };
-
-      request(app)
-        .get(url)
-        .expect('content-type', /json/)
-        .expect(400)
-        .then((response) => {
-          expect(response.body).toStrictEqual(expectedResponse);
-          done();
-        });
-    });
-
-    it('given invalid authorization header then should return forbidden', (done) => {
-      const expectedResponse: ErrorResponse = {
-        error: {
-          code: ReasonPhrases.FORBIDDEN,
-          message: ReasonPhrases.FORBIDDEN,
-        },
-      };
-
-      request(app)
-        .get(url)
-        .set('authorization', 'Bearer invalid')
-        .expect('content-type', /json/)
-        .expect(403)
-        .then((response) => {
-          expect(response.body).toStrictEqual(expectedResponse);
           done();
         });
     });
@@ -265,36 +225,13 @@ describe('offers-router', () => {
 
       const error = new AppError(CommonErrors.NotFound, errorMessage);
 
-      jest.spyOn(usersService, 'getOrCreateUser').mockRejectedValueOnce(error);
+      jest.spyOn(offersService, 'listOffersByUserId').mockRejectedValueOnce(error);
 
       request(app)
         .get(url)
         .set('authorization', authorization)
         .expect('content-type', /json/)
         .expect(404)
-        .then((response) => {
-          expect(response.body).toStrictEqual(expectedResponse);
-          done();
-        });
-    });
-
-    it('given getOrCreateUser throws an unexpected Error then should return internal server error', (done) => {
-      const expectedResponse: ErrorResponse = {
-        error: {
-          code: ReasonPhrases.INTERNAL_SERVER_ERROR,
-          message: 'Something went wrong',
-        },
-      };
-
-      jest
-        .spyOn(usersService, 'getOrCreateUser')
-        .mockRejectedValueOnce(new Error('error!'));
-
-      request(app)
-        .get(url)
-        .set('authorization', authorization)
-        .expect('content-type', /json/)
-        .expect(500)
         .then((response) => {
           expect(response.body).toStrictEqual(expectedResponse);
           done();
