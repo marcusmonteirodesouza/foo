@@ -19,9 +19,9 @@ function submitToCloudBuild(project: string): string {
 }
 
 function deployToCloudRun(project: string, region: string, image: string) {
-  const googleCloudProjectEnvVar = `GOOGLE_CLOUD_PROJECT=${project}`;
+  const gCloudProjectEnvVar = `GCLOUD_PROJECT=${project}`;
 
-  const envVars = [googleCloudProjectEnvVar].join(',');
+  const envVars = [gCloudProjectEnvVar].join(',');
 
   const deployToCloudRunCmd = `gcloud run deploy ${serviceName} --project ${project} --image ${image} --region ${region} --set-env-vars=${envVars}`;
 
