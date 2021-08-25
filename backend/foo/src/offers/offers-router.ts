@@ -55,7 +55,7 @@ router.post(
 );
 
 router.get(
-  '/offers/:id',
+  '/offers/users/:id',
   async (req, res, next) => {
     try {
       const { id } = req.params;

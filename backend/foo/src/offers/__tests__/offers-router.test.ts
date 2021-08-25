@@ -181,8 +181,8 @@ describe('offers-router', () => {
     });
   });
 
-  describe('GET /offers/:id', () => {
-    const url = `/offers/${user.id}`;
+  describe('GET /offers/users/:id', () => {
+    const url = `/offers/users/${user.id}`;
 
     const offers: Offer[] = [
       {
