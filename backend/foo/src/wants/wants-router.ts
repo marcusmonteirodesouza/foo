@@ -4,7 +4,7 @@ import {ReasonPhrases, StatusCodes} from 'http-status-codes';
 import {authenticateJwt} from '../auth/middleware';
 import {usersService} from '../users';
 import * as wantsService from './wants-service';
-import {CreateWantRequest, CreateWantResponse} from './dto';
+import {CreateWantRequest} from './dto';
 import {logger} from '../logger';
 import {AppError, CommonErrors} from '../error-management/errors';
 
@@ -15,7 +15,7 @@ router.post(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
       .unknown(),
     [Segments.BODY]: Joi.object().keys({
@@ -42,11 +42,7 @@ router.post(
         radius: request.radius,
       });
 
-      const response: CreateWantResponse = {
-        id: want.id,
-      };
-
-      res.status(StatusCodes.CREATED).json(response);
+      res.status(StatusCodes.CREATED).json(want);
     } catch (err) {
       next(err);
     }
@@ -58,7 +54,7 @@ router.get(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
       .unknown(),
   }),
@@ -81,7 +77,7 @@ router.delete(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
       .unknown(),
   }),
@@ -101,7 +97,7 @@ router.delete(
 
       await wantsService.deleteWantById(want.id);
 
-      res.status(StatusCodes.NO_CONTENT).json();
+      res.status(StatusCodes.NO_CONTENT).send();
     } catch (err) {
       next(err);
     }

@@ -2,8 +2,7 @@ import {isCelebrateError} from 'celebrate';
 import {Response} from 'express';
 import {ReasonPhrases, StatusCodes} from 'http-status-codes';
 import {logger} from '../../logger';
-import {AppError, CommonErrors} from '../errors';
-import {ErrorResponse} from './error-response';
+import {AppError, CommonErrors, ErrorResponse} from '../errors';
 
 class ErrorHandler {
   handleError(error: Error, res: Response) {

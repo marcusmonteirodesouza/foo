@@ -16,7 +16,7 @@ describe('users-service', () => {
   });
 
   describe('getOrCreateUser', () => {
-    it('Given the User does not exist then should create it', async () => {
+    it('given the User does not exist then should create it', async () => {
       const userId = 'new-user-id';
 
       jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(userId);
@@ -39,7 +39,7 @@ describe('users-service', () => {
       });
     });
 
-    it('Given the User exists then should get it', async () => {
+    it('given the User exists then should get it', async () => {
       const user: User = {
         id: faker.datatype.uuid(),
         uid: faker.datatype.uuid(),
@@ -72,7 +72,7 @@ describe('users-service', () => {
   });
 
   describe('getUserById', () => {
-    it('Should return an User', async () => {
+    it('should return an User', async () => {
       const user: User = {
         id: faker.datatype.uuid(),
         uid: faker.datatype.uuid(),
@@ -87,7 +87,7 @@ describe('users-service', () => {
       expect(result).toStrictEqual(user);
     });
 
-    it('Given the User does not exist then should return undefined', async () => {
+    it('given the User does not exist then should return undefined', async () => {
       const result = await usersService.getUserById(faker.datatype.uuid());
 
       expect(result).toBeUndefined();

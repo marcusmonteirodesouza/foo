@@ -28,7 +28,7 @@ describe('wants-service', () => {
       radius: faker.datatype.number(),
     };
 
-    it('Should create a Want', async () => {
+    it('should create a Want', async () => {
       const wantId = 'new-want-id';
 
       jest.spyOn(nanoid, 'nanoid').mockReturnValueOnce(wantId);
@@ -54,7 +54,7 @@ describe('wants-service', () => {
       });
     });
 
-    it('Given user does not exist then should throw not found', async () => {
+    it('given user does not exist then should throw not found', async () => {
       const userId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -69,7 +69,7 @@ describe('wants-service', () => {
   });
 
   describe('getWantById', () => {
-    it('Should return a Want', async () => {
+    it('should return a Want', async () => {
       const want: Want = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
@@ -91,7 +91,7 @@ describe('wants-service', () => {
       expect(result).toStrictEqual(want);
     });
 
-    it('Given the Want does not exist then should throw not found', async () => {
+    it('given the Want does not exist then should throw not found', async () => {
       const wantId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -106,7 +106,7 @@ describe('wants-service', () => {
   });
 
   describe('listWantsByUserId', () => {
-    it("Should return all the User's Wants", async () => {
+    it("should return all the User's Wants", async () => {
       const user: User = {
         id: 'my-user-id',
         uid: faker.datatype.uuid(),
@@ -157,7 +157,7 @@ describe('wants-service', () => {
       expect(result).toEqual(expect.arrayContaining(userWants));
     });
 
-    it('Given the User does not exist then should throw not found', async () => {
+    it('given the User does not exist then should throw not found', async () => {
       const userId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -172,7 +172,7 @@ describe('wants-service', () => {
   });
 
   describe('deleteWantById', () => {
-    it('Should delete a Want', async () => {
+    it('should delete a Want', async () => {
       const want: Want = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
@@ -196,7 +196,7 @@ describe('wants-service', () => {
       expect(document.exists).toBe(false);
     });
 
-    it('Given the Want does not exist then should throw not found', async () => {
+    it('given the Want does not exist then should throw not found', async () => {
       const wantId = faker.datatype.uuid();
 
       const expectedError = new AppError(

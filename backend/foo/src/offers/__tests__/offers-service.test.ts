@@ -37,7 +37,7 @@ describe('offers-service', () => {
       radius: faker.datatype.number(),
     };
 
-    it('Should create an Offer', async () => {
+    it('should create an Offer', async () => {
       const user: User = {
         id: faker.datatype.uuid(),
         uid: faker.datatype.uuid(),
@@ -63,7 +63,7 @@ describe('offers-service', () => {
       });
     });
 
-    it('Given User does not exist then should throw not found', async () => {
+    it('given User does not exist then should throw not found', async () => {
       const userId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -78,7 +78,7 @@ describe('offers-service', () => {
   });
 
   describe('getOfferById', () => {
-    it('Should return an Offer', async () => {
+    it('should return an Offer', async () => {
       const offer: Offer = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
@@ -100,7 +100,7 @@ describe('offers-service', () => {
       expect(result).toStrictEqual(offer);
     });
 
-    it('Given Offer does not exist then should throw not found', async () => {
+    it('given Offer does not exist then should throw not found', async () => {
       const offerId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -115,7 +115,7 @@ describe('offers-service', () => {
   });
 
   describe('listOffersByUserId', () => {
-    it("Should return all the User's Offers", async () => {
+    it("should return all the User's Offers", async () => {
       const user: User = {
         id: 'my-user-id',
         uid: faker.datatype.uuid(),
@@ -166,7 +166,7 @@ describe('offers-service', () => {
       expect(result).toEqual(expect.arrayContaining(userOffers));
     });
 
-    it('Given the User does not exist then should throw not found', async () => {
+    it('given the User does not exist then should throw not found', async () => {
       const userId = faker.datatype.uuid();
 
       const expectedError = new AppError(
@@ -181,7 +181,7 @@ describe('offers-service', () => {
   });
 
   describe('deleteOfferById', () => {
-    it('Should delete an Offer', async () => {
+    it('should delete an Offer', async () => {
       const offer: Offer = {
         id: faker.datatype.uuid(),
         userId: faker.datatype.uuid(),
@@ -205,7 +205,7 @@ describe('offers-service', () => {
       expect(document.exists).toBe(false);
     });
 
-    it('Given the Offer does not exist then should throw not found', async () => {
+    it('given the Offer does not exist then should throw not found', async () => {
       const offerId = faker.datatype.uuid();
 
       const expectedError = new AppError(

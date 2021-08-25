@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {app} from '../../firebase';
+import {app} from '../../../firebase';
 
 export async function getIdToken(uid: string): Promise<string> {
   const customToken = await app.auth().createCustomToken(uid);
