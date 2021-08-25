@@ -252,7 +252,7 @@ describe('wants-router', () => {
     });
 
     it('given the User does not exist then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
