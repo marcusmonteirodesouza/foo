@@ -1,5 +1,5 @@
 import faker from 'faker';
-import {app} from '../../../../firebase';
+import { app } from '../../../../firebase';
 import * as testUtils from '../test-utils';
 
 describe('test-utils', () => {

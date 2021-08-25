@@ -1,8 +1,8 @@
-import {Request, Response, NextFunction} from 'express';
+import { Request, Response, NextFunction } from 'express';
 import faker from 'faker';
-import {authenticateJwt} from '../authenticate-jwt';
+import { authenticateJwt } from '../authenticate-jwt';
 import * as testUtils from '../../utils/test/test-utils';
-import {AppError, CommonErrors} from '../../../error-management/errors';
+import { AppError, CommonErrors } from '../../../error-management/errors';
 
 describe('authenticate-jwt', () => {
   it('given idToken in the authorization header and the token is verified then should add the uid to the req', async () => {
@@ -25,7 +25,7 @@ describe('authenticate-jwt', () => {
   });
 
   it('given no authorization header then should call next with Unauthorized', async () => {
-    const req: Partial<Request> = {headers: {}};
+    const req: Partial<Request> = { headers: {} };
     const res: Partial<Response> = {};
     const next: NextFunction = jest.fn();
 
@@ -40,7 +40,9 @@ describe('authenticate-jwt', () => {
   });
 
   it('given invalid authorization header then should call next with Forbidden', async () => {
-    const req: Partial<Request> = {headers: {authorization: 'Bearer invalid'}};
+    const req: Partial<Request> = {
+      headers: { authorization: 'Bearer invalid' },
+    };
     const res: Partial<Response> = {};
     const next: NextFunction = jest.fn();
 

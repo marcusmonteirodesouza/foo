@@ -1,8 +1,8 @@
-import {isCelebrateError} from 'celebrate';
-import {Response} from 'express';
-import {ReasonPhrases, StatusCodes} from 'http-status-codes';
-import {logger} from '../../logger';
-import {AppError, CommonErrors, ErrorResponse} from '../errors';
+import { isCelebrateError } from 'celebrate';
+import { Response } from 'express';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { logger } from '../../logger';
+import { AppError, CommonErrors, ErrorResponse } from '../errors';
 
 class ErrorHandler {
   handleError(error: Error, res: Response) {
@@ -10,7 +10,7 @@ class ErrorHandler {
 
     if (isCelebrateError(error)) {
       const errorMessage = Array.from(error.details.entries())
-        .map(entry => entry[1].message)
+        .map((entry) => entry[1].message)
         .join('\n');
 
       logger.error(errorMessage);
@@ -40,14 +40,6 @@ class ErrorHandler {
           );
           res.status(StatusCodes.NOT_FOUND).json(response);
           return;
-
-        case CommonErrors.Unauthorized:
-          response = this.makeErrorResponse(
-            ReasonPhrases.UNAUTHORIZED,
-            error.message
-          );
-          res.status(StatusCodes.UNAUTHORIZED).json(response);
-          return;
       }
     } else {
       const response = this.makeErrorResponse(
@@ -74,4 +66,4 @@ class ErrorHandler {
 
 const errorHandler = new ErrorHandler();
 
-export {errorHandler};
+export { errorHandler };

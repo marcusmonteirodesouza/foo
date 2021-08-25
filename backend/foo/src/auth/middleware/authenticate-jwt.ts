@@ -1,15 +1,15 @@
-import {Request, Response, NextFunction} from 'express';
-import {ReasonPhrases} from 'http-status-codes';
-import {AppError, CommonErrors} from '../../error-management/errors';
-import {app} from '../../firebase';
-import {logger} from '../../logger';
+import { Request, Response, NextFunction } from 'express';
+import { ReasonPhrases } from 'http-status-codes';
+import { AppError, CommonErrors } from '../../error-management/errors';
+import { app } from '../../firebase';
+import { logger } from '../../logger';
 
 export async function authenticateJwt(
   req: Request,
   res: Response,
   next: NextFunction
-) {
-  const {authorization} = req.headers;
+): Promise<void> {
+  const { authorization } = req.headers;
 
   if (authorization) {
     const token = authorization.split(' ')[1];

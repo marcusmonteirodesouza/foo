@@ -1,4 +1,4 @@
-import {Coordinates} from '../../common/types';
+import { Coordinates } from '../../common/types';
 
 export type CreateOfferRequest = {
   title: string;

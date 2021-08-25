@@ -2,10 +2,10 @@ import request from 'supertest';
 import faker from 'faker';
 import { app } from '../../app';
 import { User, usersService } from '../../users';
-import * as wantsService from '../wants-service';
-import { CreateWantRequest } from '../dto';
+import * as offersService from '../offers-service';
+import { CreateOfferRequest } from '../dto';
 import { testUtils } from '../../auth/utils/test';
-import { Want } from '../want';
+import { Offer } from '../offer';
 import {
   AppError,
   CommonErrors,
@@ -13,7 +13,7 @@ import {
 } from '../../error-management/errors';
 import { ReasonPhrases } from 'http-status-codes';
 
-describe('wants-router', () => {
+describe('offers-router', () => {
   const user: User = {
     id: faker.datatype.uuid(),
     uid: faker.datatype.uuid(),
@@ -29,11 +29,13 @@ describe('wants-router', () => {
     jest.restoreAllMocks();
   });
 
-  describe('POST /wants', () => {
-    const url = '/wants';
+  describe('POST /offers', () => {
+    const url = '/offers';
 
-    const body: CreateWantRequest = {
+    const body: CreateOfferRequest = {
       title: 'Immigration news',
+      description:
+        'Know the latest news on immigration to our beautiful Quebec',
       categories: ['immigration', 'government', 'Quebec'],
       center: {
         latitude: Number.parseFloat(faker.address.latitude()),
@@ -42,8 +44,8 @@ describe('wants-router', () => {
       radius: 5000,
     };
 
-    it('should create a Want and return it', (done) => {
-      const want: Want = {
+    it('should create a Offer and return it', (done) => {
+      const offer: Offer = {
         id: faker.datatype.uuid(),
         userId: user.id,
         ...body,
@@ -51,7 +53,7 @@ describe('wants-router', () => {
 
       jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValueOnce(user);
 
-      jest.spyOn(wantsService, 'createWant').mockResolvedValueOnce(want);
+      jest.spyOn(offersService, 'createOffer').mockResolvedValueOnce(offer);
 
       request(app)
         .post(url)
@@ -60,7 +62,7 @@ describe('wants-router', () => {
         .expect('content-type', /json/)
         .expect(201)
         .then((response) => {
-          expect(response.body).toStrictEqual(want);
+          expect(response.body).toStrictEqual(offer);
           done();
         });
     });
@@ -154,7 +156,7 @@ describe('wants-router', () => {
         });
     });
 
-    it('given createWant throws an unexpected Error then should return internal server error', (done) => {
+    it('given createOffer throws an unexpected Error then should return internal server error', (done) => {
       const expectedResponse: ErrorResponse = {
         error: {
           code: ReasonPhrases.INTERNAL_SERVER_ERROR,
@@ -163,7 +165,7 @@ describe('wants-router', () => {
       };
 
       jest
-        .spyOn(wantsService, 'createWant')
+        .spyOn(offersService, 'createOffer')
         .mockRejectedValueOnce(new Error('error!'));
 
       request(app)
@@ -179,10 +181,10 @@ describe('wants-router', () => {
     });
   });
 
-  describe('GET /wants', () => {
-    const url = '/wants';
+  describe('GET /offers', () => {
+    const url = '/offers';
 
-    const wants: Want[] = [
+    const offers: Offer[] = [
       {
         id: faker.datatype.uuid(),
         userId: user.id,
@@ -196,12 +198,12 @@ describe('wants-router', () => {
       },
     ];
 
-    it("should return the list of the User's Wants", (done) => {
+    it("should return the list of the User's offers", (done) => {
       jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValue(user);
 
       jest
-        .spyOn(wantsService, 'listWantsByUserId')
-        .mockResolvedValueOnce(wants);
+        .spyOn(offersService, 'listOffersByUserId')
+        .mockResolvedValueOnce(offers);
 
       request(app)
         .get(url)
@@ -209,7 +211,7 @@ describe('wants-router', () => {
         .expect('content-type', /json/)
         .expect(200)
         .then((response) => {
-          expect(response.body).toStrictEqual(wants);
+          expect(response.body).toStrictEqual(offers);
           done();
         });
     });
@@ -299,7 +301,7 @@ describe('wants-router', () => {
         });
     });
 
-    it('given listWantsByUserId throws an unexpected Error then should return internal server error', (done) => {
+    it('given listOffersByUserId throws an unexpected Error then should return internal server error', (done) => {
       const expectedResponse: ErrorResponse = {
         error: {
           code: ReasonPhrases.INTERNAL_SERVER_ERROR,
@@ -308,7 +310,7 @@ describe('wants-router', () => {
       };
 
       jest
-        .spyOn(wantsService, 'listWantsByUserId')
+        .spyOn(offersService, 'listOffersByUserId')
         .mockRejectedValueOnce(new Error('error!'));
 
       request(app)
@@ -323,11 +325,12 @@ describe('wants-router', () => {
     });
   });
 
-  describe('DELETE /want/:id', () => {
-    const want: Want = {
+  describe('DELETE /offer/:id', () => {
+    const offer: Offer = {
       id: faker.datatype.uuid(),
       userId: user.id,
-      title: 'Haircuts near me',
+      title: 'Haircut promotion',
+      description: 'Cut your hair with 10% off!',
       categories: ['haircut', 'hair', 'sallon', 'beauty'],
       center: {
         latitude: Number.parseFloat(faker.address.latitude()),
@@ -336,15 +339,15 @@ describe('wants-router', () => {
       radius: 1000,
     };
 
-    const url = `/wants/${want.id}`;
+    const url = `/offers/${offer.id}`;
 
-    it('should delete a Want by its id', (done) => {
+    it('should delete a Offer by its id', (done) => {
       jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValueOnce(user);
 
-      jest.spyOn(wantsService, 'getWantById').mockResolvedValueOnce(want);
+      jest.spyOn(offersService, 'getOfferById').mockResolvedValueOnce(offer);
 
-      const deleteWantSpy = jest
-        .spyOn(wantsService, 'deleteWantById')
+      const deleteofferspy = jest
+        .spyOn(offersService, 'deleteOfferById')
         .mockResolvedValueOnce();
 
       request(app)
@@ -352,7 +355,7 @@ describe('wants-router', () => {
         .set('authorization', authorization)
         .expect(204)
         .then(() => {
-          expect(deleteWantSpy).toBeCalledWith(want.id);
+          expect(deleteofferspy).toBeCalledWith(offer.id);
           done();
         });
     });
@@ -418,8 +421,8 @@ describe('wants-router', () => {
         });
     });
 
-    it('given the Want is not found then should return not found', (done) => {
-      const errorMessage = `Want ${want.id} does not exist`;
+    it('given the Offer is not found then should return not found', (done) => {
+      const errorMessage = `Offer ${offer.id} does not exist`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -430,7 +433,7 @@ describe('wants-router', () => {
 
       const error = new AppError(CommonErrors.NotFound, errorMessage);
 
-      jest.spyOn(wantsService, 'getWantById').mockRejectedValueOnce(error);
+      jest.spyOn(offersService, 'getOfferById').mockRejectedValueOnce(error);
 
       request(app)
         .delete(url)
@@ -442,7 +445,7 @@ describe('wants-router', () => {
         });
     });
 
-    it('given the Want does not belong to the User then should return forbidden', (done) => {
+    it('given the Offer does not belong to the User then should return forbidden', (done) => {
       const expectedResponse: ErrorResponse = {
         error: {
           code: ReasonPhrases.FORBIDDEN,
@@ -451,8 +454,8 @@ describe('wants-router', () => {
       };
 
       jest
-        .spyOn(wantsService, 'getWantById')
-        .mockResolvedValueOnce({ ...want, userId: faker.datatype.uuid() });
+        .spyOn(offersService, 'getOfferById')
+        .mockResolvedValueOnce({ ...offer, userId: faker.datatype.uuid() });
 
       request(app)
         .delete(url)
@@ -487,7 +490,7 @@ describe('wants-router', () => {
         });
     });
 
-    it('given getWantById throws an unexpected Error then should return internal server error', (done) => {
+    it('given getOfferById throws an unexpected Error then should return internal server error', (done) => {
       const expectedResponse: ErrorResponse = {
         error: {
           code: ReasonPhrases.INTERNAL_SERVER_ERROR,
@@ -496,7 +499,7 @@ describe('wants-router', () => {
       };
 
       jest
-        .spyOn(wantsService, 'getWantById')
+        .spyOn(offersService, 'getOfferById')
         .mockRejectedValueOnce(new Error('error!'));
 
       request(app)

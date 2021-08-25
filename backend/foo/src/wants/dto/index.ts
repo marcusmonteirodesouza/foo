@@ -1,1 +1,1 @@
-export {CreateWantRequest} from './create-want-request';
+export { CreateWantRequest } from './create-want-request';

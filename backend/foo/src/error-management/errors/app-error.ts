@@ -1,4 +1,4 @@
-import {CommonErrors} from './common-errors';
+import { CommonErrors } from './common-errors';
 
 export class AppError extends Error {
   public readonly commonError: CommonErrors;

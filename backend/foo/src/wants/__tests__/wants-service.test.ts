@@ -1,9 +1,9 @@
 import faker from 'faker';
 import nanoid from 'nanoid';
-import {db} from '../../db';
-import {AppError, CommonErrors} from '../../error-management/errors';
-import {usersService, User} from '../../users';
-import {Want} from '../want';
+import { db } from '../../db';
+import { AppError, CommonErrors } from '../../error-management/errors';
+import { usersService, User } from '../../users';
+import { Want } from '../want';
 import * as wantsService from '../wants-service';
 
 describe('wants-service', () => {
@@ -82,7 +82,7 @@ describe('wants-service', () => {
         radius: faker.datatype.number(),
       };
 
-      const {id: wantId, ...wantData} = want;
+      const { id: wantId, ...wantData } = want;
 
       await db.doc(`${wantsCollectionPath}/${wantId}`).set(wantData);
 
@@ -146,8 +146,8 @@ describe('wants-service', () => {
       };
 
       await Promise.all(
-        [...userWants, anotherWant].map(async want => {
-          const {id, ...wantData} = want;
+        [...userWants, anotherWant].map(async (want) => {
+          const { id, ...wantData } = want;
           await db.doc(`${wantsCollectionPath}/${id}`).set(wantData);
         })
       );
@@ -185,7 +185,7 @@ describe('wants-service', () => {
         radius: faker.datatype.number(),
       };
 
-      const {id, ...wantData} = want;
+      const { id, ...wantData } = want;
 
       await db.doc(`${wantsCollectionPath}/${id}`).set(wantData);
 

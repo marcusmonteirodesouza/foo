@@ -1,1 +1,1 @@
-export {authenticateJwt} from './authenticate-jwt';
+export { authenticateJwt } from './authenticate-jwt';

@@ -1,6 +1,6 @@
 import bunyan from 'bunyan';
-import {LoggingBunyan} from '@google-cloud/logging-bunyan';
-import {config} from '../config';
+import { LoggingBunyan } from '@google-cloud/logging-bunyan';
+import { config } from '../config';
 
 const loggingBunyan = new LoggingBunyan({
   logName: config.log.name,
@@ -26,4 +26,4 @@ const logger = bunyan.createLogger({
   streams,
 });
 
-export {logger};
+export { logger };

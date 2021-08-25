@@ -1,7 +1,7 @@
-import {Firestore} from '@google-cloud/firestore';
+import { Firestore } from '@google-cloud/firestore';
 
 const db = new Firestore();
 
-db.settings({ignoreUndefinedProperties: true});
+db.settings({ ignoreUndefinedProperties: true });
 
-export {db};
+export { db };

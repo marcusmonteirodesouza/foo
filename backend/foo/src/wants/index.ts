@@ -1,1 +1,1 @@
-export {router} from './wants-router';
+export { router } from './wants-router';

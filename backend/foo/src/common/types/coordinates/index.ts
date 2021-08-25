@@ -1,1 +1,1 @@
-export {Coordinates} from './coordinates';
+export { Coordinates } from './coordinates';

@@ -1,7 +1,7 @@
 import faker from 'faker';
 import nanoid from 'nanoid';
-import {db} from '../../db';
-import {User} from '../user';
+import { db } from '../../db';
+import { User } from '../user';
 import * as usersService from '../users-service';
 
 describe('users-service', () => {
@@ -45,7 +45,7 @@ describe('users-service', () => {
         uid: faker.datatype.uuid(),
       };
 
-      const {id: userId, ...userData} = user;
+      const { id: userId, ...userData } = user;
 
       await db.doc(`${usersCollectionPath}/${userId}`).set(userData);
 
@@ -78,7 +78,7 @@ describe('users-service', () => {
         uid: faker.datatype.uuid(),
       };
 
-      const {id: userId, ...userData} = user;
+      const { id: userId, ...userData } = user;
 
       await db.doc(`${usersCollectionPath}/${userId}`).set(userData);
 

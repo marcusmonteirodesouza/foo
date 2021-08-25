@@ -1,12 +1,12 @@
-import {Router} from 'express';
-import {celebrate, Joi, Segments} from 'celebrate';
-import {ReasonPhrases, StatusCodes} from 'http-status-codes';
-import {authenticateJwt} from '../auth/middleware';
-import {usersService} from '../users';
+import { Router } from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { authenticateJwt } from '../auth/middleware';
+import { usersService } from '../users';
 import * as wantsService from './wants-service';
-import {CreateWantRequest} from './dto';
-import {logger} from '../logger';
-import {AppError, CommonErrors} from '../error-management/errors';
+import { CreateWantRequest } from './dto';
+import { logger } from '../logger';
+import { AppError, CommonErrors } from '../error-management/errors';
 
 const router = Router();
 
@@ -17,21 +17,24 @@ router.post(
       .keys({
         authorization: Joi.string().required(),
       })
-      .unknown(),
-    [Segments.BODY]: Joi.object().keys({
-      title: Joi.string().required(),
-      categories: Joi.array().items(Joi.string()).required(),
-      center: Joi.object().keys({
-        latitude: Joi.number().required(),
-        longitude: Joi.number().required(),
-      }),
-      radius: Joi.number().required(),
-    }),
+      .unknown()
+      .required(),
+    [Segments.BODY]: Joi.object()
+      .keys({
+        title: Joi.string().required(),
+        categories: Joi.array().items(Joi.string()).required(),
+        center: Joi.object().keys({
+          latitude: Joi.number().required(),
+          longitude: Joi.number().required(),
+        }),
+        radius: Joi.number().required(),
+      })
+      .required(),
   }),
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const request = req.body as CreateWantRequest;
 
@@ -61,7 +64,7 @@ router.get(
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const wants = await wantsService.listWantsByUserId(user.id);
 
@@ -84,9 +87,9 @@ router.delete(
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const {id} = req.params;
+      const { id } = req.params;
 
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const want = await wantsService.getWantById(id);
 
@@ -104,4 +107,4 @@ router.delete(
   }
 );
 
-export {router};
+export { router };

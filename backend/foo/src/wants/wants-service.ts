@@ -1,9 +1,9 @@
-import {db} from '../db';
-import {Coordinates} from '../common/types';
-import {usersService} from '../users';
-import {AppError, CommonErrors} from '../error-management/errors';
-import {Want} from './want';
-import {nanoid} from 'nanoid';
+import { db } from '../db';
+import { Coordinates } from '../common/types';
+import { usersService } from '../users';
+import { AppError, CommonErrors } from '../error-management/errors';
+import { Want } from './want';
+import { nanoid } from 'nanoid';
 
 const wantsCollectionPath = 'wants';
 
@@ -36,7 +36,7 @@ export async function createWant(
   const document = db.doc(`/${wantsCollectionPath}/${want.id}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, ...documentData} = want;
+  const { id, ...documentData } = want;
 
   await document.set(documentData);
 
@@ -70,7 +70,7 @@ export async function listWantsByUserId(userId: string): Promise<Want[]> {
     .where('userId', '==', userId)
     .get();
 
-  return snapshot.docs.map(doc => {
+  return snapshot.docs.map((doc) => {
     const documentData = doc.data() as Omit<Want, 'id'>;
     return {
       id: doc.id,

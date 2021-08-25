@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 describe('config', () => {
   const OLD_ENV = process.env;
 
   beforeEach(() => {
     jest.resetModules();
-    process.env = {...OLD_ENV};
+    process.env = { ...OLD_ENV };
   });
 
   afterAll(() => {
@@ -13,10 +14,10 @@ describe('config', () => {
   describe('env', () => {
     test.each(['development', 'test', 'production'])(
       "Given process.env.NODE_ENV has valid value %p then should return it's value",
-      validEnv => {
+      (validEnv) => {
         process.env.NODE_ENV = validEnv;
 
-        const {config} = require('../config');
+        const { config } = require('../config');
 
         expect(config.env).toBe(validEnv);
       }
@@ -25,7 +26,7 @@ describe('config', () => {
     test("Given process.env.NODE_ENV is undefined then should return 'production' as default", () => {
       delete process.env.NODE_ENV;
 
-      const {config} = require('../config');
+      const { config } = require('../config');
 
       expect(config.env).toBe('production');
     });
@@ -49,7 +50,7 @@ describe('config', () => {
 
       process.env.PORT = port.toString();
 
-      const {config} = require('../config');
+      const { config } = require('../config');
 
       expect(config.port).toBe(port);
     });
@@ -57,7 +58,7 @@ describe('config', () => {
     test('Given process.env.PORT is undefined then should return 8080 as default', () => {
       delete process.env.PORT;
 
-      const {config} = require('../config');
+      const { config } = require('../config');
 
       expect(config.port).toBe(8080);
     });
@@ -91,10 +92,10 @@ describe('config', () => {
     describe('level', () => {
       test.each(['trace', 'debug', 'info', 'warn', 'error', 'fatal'])(
         "Given process.env.LOG_LEVEL %p then log.level should be '%p'",
-        logLevel => {
+        (logLevel) => {
           process.env.LOG_LEVEL = logLevel;
 
-          const {config} = require('../config');
+          const { config } = require('../config');
 
           expect(config.log.level).toBe(logLevel);
         }
@@ -103,7 +104,7 @@ describe('config', () => {
       test('Given process.env.LOG_LEVEL is undefined then the default should be info', () => {
         delete process.env.LOG_LEVEL;
 
-        const {config} = require('../config');
+        const { config } = require('../config');
 
         expect(config.log.level).toBe('info');
       });
@@ -125,7 +126,7 @@ describe('config', () => {
 
         process.env.K_SERVICE = name;
 
-        const {config} = require('../config');
+        const { config } = require('../config');
 
         expect(config.log.name).toBe(name);
       });
@@ -133,7 +134,7 @@ describe('config', () => {
       test('Given the environment variable K_SERVICE is undefined then should return foo as default', () => {
         delete process.env.K_SERVICE;
 
-        const {config} = require('../config');
+        const { config } = require('../config');
 
         expect(config.log.name).toBe('foo');
       });
@@ -147,7 +148,7 @@ describe('config', () => {
 
         process.env.GCLOUD_PROJECT = projectId;
 
-        const {config} = require('../config');
+        const { config } = require('../config');
 
         expect(config.google.projectId).toBe(projectId);
       });

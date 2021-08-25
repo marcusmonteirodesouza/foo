@@ -1,4 +1,4 @@
-import {ReasonPhrases} from 'http-status-codes';
+import { ReasonPhrases } from 'http-status-codes';
 
 type ErrorResponse = {
   error: {
@@ -7,4 +7,4 @@ type ErrorResponse = {
   };
 };
 
-export {ErrorResponse};
+export { ErrorResponse };

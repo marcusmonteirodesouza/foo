@@ -1,6 +1,6 @@
-import {nanoid} from 'nanoid';
-import {db} from '../db';
-import {User} from './user';
+import { nanoid } from 'nanoid';
+import { db } from '../db';
+import { User } from './user';
 
 const usersCollectionPath = 'users';
 
@@ -25,7 +25,7 @@ export async function getOrCreateUser(
   const document = db.doc(`/${usersCollectionPath}/${user.id}`);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, ...documentData} = user;
+  const { id, ...documentData } = user;
 
   await document.set(documentData);
 

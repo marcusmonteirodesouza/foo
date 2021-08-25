@@ -1,9 +1,9 @@
-import {nanoid} from 'nanoid';
-import {usersService} from '../users';
-import {db} from '../db';
-import {Offer} from './offer';
-import {AppError, CommonErrors} from '../error-management/errors';
-import {Coordinates} from '../common/types';
+import { nanoid } from 'nanoid';
+import { usersService } from '../users';
+import { db } from '../db';
+import { Offer } from './offer';
+import { AppError, CommonErrors } from '../error-management/errors';
+import { Coordinates } from '../common/types';
 
 const offersCollectionPath = 'offers';
 
@@ -36,7 +36,7 @@ export async function createOffer(
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {id, ...documentData} = offer;
+  const { id, ...documentData } = offer;
 
   await db.doc(`/${offersCollectionPath}/${offer.id}`).set(documentData);
 
@@ -70,7 +70,7 @@ export async function listOffersByUserId(userId: string): Promise<Offer[]> {
     .where('userId', '==', userId)
     .get();
 
-  return snapshot.docs.map(doc => {
+  return snapshot.docs.map((doc) => {
     const documentData = doc.data() as Omit<Offer, 'id'>;
     return {
       id: doc.id,

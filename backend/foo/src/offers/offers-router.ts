@@ -1,12 +1,12 @@
-import {Router} from 'express';
-import {celebrate, Joi, Segments} from 'celebrate';
-import {usersService} from '../users';
+import { Router } from 'express';
+import { celebrate, Joi, Segments } from 'celebrate';
+import { usersService } from '../users';
 import * as offersService from './offers-service';
-import {CreateOfferRequest, CreateOfferResponse} from './dto';
-import {authenticateJwt} from '../auth/middleware';
-import {ReasonPhrases, StatusCodes} from 'http-status-codes';
-import {AppError, CommonErrors} from '../error-management/errors';
-import {logger} from '../logger';
+import { CreateOfferRequest } from './dto';
+import { authenticateJwt } from '../auth/middleware';
+import { ReasonPhrases, StatusCodes } from 'http-status-codes';
+import { AppError, CommonErrors } from '../error-management/errors';
+import { logger } from '../logger';
 
 const router = Router();
 
@@ -15,24 +15,27 @@ router.post(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
-      .unknown(),
-    [Segments.BODY]: Joi.object().keys({
-      title: Joi.string().required(),
-      description: Joi.string(),
-      categories: Joi.array().items(Joi.string()),
-      center: Joi.object().keys({
-        latitude: Joi.number().required(),
-        longitude: Joi.number().required(),
-      }),
-      radius: Joi.number().required(),
-    }),
+      .unknown()
+      .required(),
+    [Segments.BODY]: Joi.object()
+      .keys({
+        title: Joi.string().required(),
+        description: Joi.string(),
+        categories: Joi.array().items(Joi.string()),
+        center: Joi.object().keys({
+          latitude: Joi.number().required(),
+          longitude: Joi.number().required(),
+        }),
+        radius: Joi.number().required(),
+      })
+      .required(),
   }),
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const request = req.body as CreateOfferRequest;
 
@@ -44,11 +47,7 @@ router.post(
         radius: request.radius,
       });
 
-      const response: CreateOfferResponse = {
-        id: offer.id,
-      };
-
-      res.status(StatusCodes.CREATED).json(response);
+      res.status(StatusCodes.CREATED).json(offer);
     } catch (err) {
       next(err);
     }
@@ -60,14 +59,15 @@ router.get(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
-      .unknown(),
+      .unknown()
+      .required(),
   }),
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const offers = await offersService.listOffersByUserId(user.id);
 
@@ -83,16 +83,17 @@ router.delete(
   celebrate({
     [Segments.HEADERS]: Joi.object()
       .keys({
-        authorization: Joi.string(),
+        authorization: Joi.string().required(),
       })
-      .unknown(),
+      .unknown()
+      .required(),
   }),
   authenticateJwt,
   async (req, res, next) => {
     try {
-      const {id} = req.params;
+      const { id } = req.params;
 
-      const user = await usersService.getOrCreateUser({uid: req.uid});
+      const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const offer = await offersService.getOfferById(id);
 
@@ -110,4 +111,4 @@ router.delete(
   }
 );
 
-export {router};
+export { router };

@@ -1,1 +1,1 @@
-export {router} from './offers-router';
+export { router } from './offers-router';
