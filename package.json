@@ -1,0 +1,26 @@
+{
+  "name": "@foo/backend-foo",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "prepare": "husky install",
+    "backend:foo:test": "npm --prefix backend/foo test",
+    "frontend:web:test": "CI=true npm --prefix frontend/web test",
+    "test": "concurrently \"npm run backend:foo:test\" \"npm run frontend:web:test\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marcusmonteirodesouza/foo.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/marcusmonteirodesouza/foo/issues"
+  },
+  "homepage": "https://github.com/marcusmonteirodesouza/foo#readme",
+  "devDependencies": {
+    "concurrently": "^6.2.1",
+    "husky": "^7.0.2"
+  }
+}
