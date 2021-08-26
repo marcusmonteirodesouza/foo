@@ -1,4 +1,4 @@
-import { Coordinates } from '../common/types';
+import { Location } from '../common/types';
 
 export interface Offer {
   id: string;
@@ -6,6 +6,6 @@ export interface Offer {
   title: string;
   description?: string;
   categories: string[];
-  center: Coordinates;
-  radius: number;
+  center: Location;
+  radiusInMeters: number;
 }

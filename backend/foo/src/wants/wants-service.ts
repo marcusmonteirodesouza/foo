@@ -1,9 +1,10 @@
+import { nanoid } from 'nanoid';
+import * as geofire from 'geofire-common';
 import { db } from '../db';
 import { Coordinates } from '../common/types';
 import { usersService } from '../users';
 import { AppError, CommonErrors } from '../error-management/errors';
 import { Want } from './want';
-import { nanoid } from 'nanoid';
 
 const wantsCollectionPath = 'wants';
 
@@ -24,13 +25,21 @@ export async function createWant(
     throw new AppError(CommonErrors.NotFound, `User ${userId} not found`);
   }
 
+  const geohash = geofire.geohashForLocation([
+    options.center.latitude,
+    options.center.longitude,
+  ]);
+
   const want: Want = {
     id: nanoid(),
     userId: user.id,
     title: options.title,
     categories: options.categories,
-    center: options.center,
-    radius: options.radius,
+    center: {
+      ...options.center,
+      geohash,
+    },
+    radiusInMeters: options.radius,
   };
 
   const document = db.doc(`/${wantsCollectionPath}/${want.id}`);
@@ -43,11 +52,11 @@ export async function createWant(
   return want;
 }
 
-export async function getWantById(id: string): Promise<Want> {
+export async function getWantById(id: string): Promise<Want | undefined> {
   const snapshot = await db.doc(`/${wantsCollectionPath}/${id}`).get();
 
   if (!snapshot.exists) {
-    throw new AppError(CommonErrors.NotFound, `Want ${id} not found`);
+    return;
   }
 
   const documentData = snapshot.data() as Omit<Want, 'id'>;

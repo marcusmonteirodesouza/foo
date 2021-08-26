@@ -5,5 +5,5 @@ export type CreateOfferRequest = {
   description?: string;
   categories: string[];
   center: Coordinates;
-  radius: number;
+  radiusInMeters: number;
 };

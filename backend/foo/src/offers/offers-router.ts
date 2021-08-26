@@ -28,7 +28,7 @@ router.post(
           latitude: Joi.number().required(),
           longitude: Joi.number().required(),
         }),
-        radius: Joi.number().required(),
+        radiusInMeters: Joi.number().required(),
       })
       .required(),
   }),
@@ -44,7 +44,7 @@ router.post(
         description: request.description,
         categories: request.categories,
         center: request.center,
-        radius: request.radius,
+        radius: request.radiusInMeters,
       });
 
       res.status(StatusCodes.CREATED).json(offer);
@@ -54,20 +54,29 @@ router.post(
   }
 );
 
-router.get(
-  '/offers/users/:id',
-  async (req, res, next) => {
-    try {
-      const { id } = req.params;
+router.get('/offers/users/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
 
-      const offers = await offersService.listOffersByUserId(id);
+    const offers = await offersService.listOffersByUserId(id);
 
-      res.json(offers);
-    } catch (err) {
-      next(err);
-    }
+    res.json(offers);
+  } catch (err) {
+    next(err);
   }
-);
+});
+
+router.get('/offers/wants/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const offers = await offersService.listOffersByWantId(id);
+
+    res.json(offers);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.delete(
   '/offers/:id',

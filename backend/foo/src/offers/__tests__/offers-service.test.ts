@@ -1,14 +1,32 @@
 import faker from 'faker';
 import nanoid from 'nanoid';
+import * as geofire from 'geofire-common';
 import { db } from '../../db';
 import { AppError, CommonErrors } from '../../error-management/errors';
+import { Coordinates } from '../../common/types';
 import { usersService } from '../../users';
 import { User } from '../../users';
 import { Offer } from '../offer';
 import * as offersService from '../offers-service';
+import { Want, wantsService } from '../../wants';
 
 describe('offers-service', () => {
   const offersCollectionPath = 'offers';
+
+  function getRandomCenter(): {
+    latitude: number;
+    longitude: number;
+    geohash: string;
+  } {
+    const latitude = Number.parseFloat(faker.address.latitude());
+    const longitude = Number.parseFloat(faker.address.longitude());
+    const geohash = geofire.geohashForLocation([latitude, longitude]);
+    return {
+      latitude,
+      longitude,
+      geohash,
+    };
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -84,11 +102,8 @@ describe('offers-service', () => {
         userId: faker.datatype.uuid(),
         title: 'Brazilian Wax for $35!',
         categories: ['beauty', 'hair', 'wax'],
-        center: {
-          latitude: Number.parseFloat(faker.address.latitude()),
-          longitude: Number.parseFloat(faker.address.longitude()),
-        },
-        radius: faker.datatype.number(),
+        center: getRandomCenter(),
+        radiusInMeters: faker.datatype.number(),
       };
 
       const { id: offerId, ...documentData } = offer;
@@ -129,22 +144,16 @@ describe('offers-service', () => {
           userId: user.id,
           title: 'Delicious pizzas and pasta',
           categories: ['pizza', 'pasta', 'food', 'italian'],
-          center: {
-            latitude: Number.parseFloat(faker.address.latitude()),
-            longitude: Number.parseFloat(faker.address.longitude()),
-          },
-          radius: faker.datatype.number(),
+          center: getRandomCenter(),
+          radiusInMeters: faker.datatype.number(),
         },
         {
           id: faker.datatype.uuid(),
           userId: user.id,
           title: 'All for $20! Haircut, manicure, and pedicure',
           categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
-          center: {
-            latitude: Number.parseFloat(faker.address.latitude()),
-            longitude: Number.parseFloat(faker.address.longitude()),
-          },
-          radius: faker.datatype.number(),
+          center: getRandomCenter(),
+          radiusInMeters: faker.datatype.number(),
         },
       ];
 
@@ -180,6 +189,149 @@ describe('offers-service', () => {
     });
   });
 
+  describe('listOffersByWantId', () => {
+    it("should return the list of Offers inside Want's radius and whose own radius contains the Want's center", async () => {
+      const wantCoordinates: Coordinates = {
+        latitude: 46.8074117,
+        longitude: -71.2250098,
+      };
+
+      const want: Want = {
+        id: faker.datatype.uuid(),
+        userId: faker.datatype.uuid(),
+        title: 'Pizza',
+        categories: ['pizza', 'italian', 'food'],
+        center: {
+          latitude: wantCoordinates.latitude,
+          longitude: wantCoordinates.longitude,
+          geohash: geofire.geohashForLocation([
+            wantCoordinates.latitude,
+            wantCoordinates.longitude,
+          ]),
+        },
+        radiusInMeters: 6000,
+      };
+
+      const offerInWantRadiusAndWantInOwnRadiusCoordinates: Coordinates = {
+        latitude: 46.811823964359135,
+        longitude: -71.23307921390816,
+      };
+
+      const offerInWantRadiusAndWantInOwnRadius: Offer = {
+        id: faker.datatype.uuid(),
+        userId: faker.datatype.uuid(),
+        title: 'Pizza promotion',
+        description: 'All medium pizzas 10% OFF!',
+        categories: ['pizza', 'italian', 'food', 'promotion'],
+        center: {
+          latitude: offerInWantRadiusAndWantInOwnRadiusCoordinates.latitude,
+          longitude: offerInWantRadiusAndWantInOwnRadiusCoordinates.longitude,
+          geohash: geofire.geohashForLocation([
+            offerInWantRadiusAndWantInOwnRadiusCoordinates.latitude,
+            offerInWantRadiusAndWantInOwnRadiusCoordinates.longitude,
+          ]),
+        },
+        radiusInMeters: 1000,
+      };
+
+      const anotherOfferInWantRadiusAndWantInOwnRadiusCoordinates: Coordinates = {
+        latitude: 46.81099981030187,
+        longitude: -71.21557232710155,
+      };
+
+      const anotherOfferInWantRadiusAndWantInOwnRadius: Offer = {
+        id: faker.datatype.uuid(),
+        userId: faker.datatype.uuid(),
+        title: 'Pepperoni Pizza promotion',
+        description: 'Pepperoni pizzas with double cheese for the same price!',
+        categories: ['pizza', 'italian', 'food', 'pepperoni', 'promotion'],
+        center: {
+          latitude: anotherOfferInWantRadiusAndWantInOwnRadiusCoordinates.latitude,
+          longitude: anotherOfferInWantRadiusAndWantInOwnRadiusCoordinates.longitude,
+          geohash: geofire.geohashForLocation([
+            anotherOfferInWantRadiusAndWantInOwnRadiusCoordinates.latitude,
+            anotherOfferInWantRadiusAndWantInOwnRadiusCoordinates.longitude,
+          ]),
+        },
+        radiusInMeters: 900,
+      };
+
+      const offerInWantRadiusButOutsideOwnRadiusCoordinates: Coordinates = {
+        latitude: 46.77305984329318,
+        longitude: -71.28302809995951,
+      };
+
+      const offerInWantRadiusButOutsideOwnRadius: Offer = {
+        id: faker.datatype.uuid(),
+        userId: faker.datatype.uuid(),
+        title: 'Pizza SALE!',
+        description: 'All pizzas 30% OFF!!',
+        categories: ['pizza', 'sale', 'italian', 'food', 'promotion'],
+        center: {
+          latitude: offerInWantRadiusButOutsideOwnRadiusCoordinates.latitude,
+          longitude: offerInWantRadiusButOutsideOwnRadiusCoordinates.longitude,
+          geohash: geofire.geohashForLocation([
+            offerInWantRadiusButOutsideOwnRadiusCoordinates.latitude,
+            offerInWantRadiusButOutsideOwnRadiusCoordinates.longitude,
+          ]),
+        },
+        radiusInMeters: 5000,
+      };
+
+      const offerOutsideWantRadiusCoordinates: Coordinates = {
+        latitude: 46.763706658731444,
+        longitude: -71.30189913239369,
+      };
+
+      const offerOutsideWantRadius: Offer = {
+        id: faker.datatype.uuid(),
+        userId: faker.datatype.uuid(),
+        title: 'All Pizzas 70% OFF!',
+        description: 'The Manager has gone crazy! All pizzas 70% OFF!',
+        categories: ['pizza', 'italian', 'food'],
+        center: {
+          latitude: offerOutsideWantRadiusCoordinates.latitude,
+          longitude: offerOutsideWantRadiusCoordinates.longitude,
+          geohash: geofire.geohashForLocation([
+            offerOutsideWantRadiusCoordinates.latitude,
+            offerOutsideWantRadiusCoordinates.longitude,
+          ]),
+        },
+        radiusInMeters: 10000,
+      };
+
+      const allOffers = [
+        offerInWantRadiusAndWantInOwnRadius,
+        anotherOfferInWantRadiusAndWantInOwnRadius,
+        offerInWantRadiusButOutsideOwnRadius,
+        offerOutsideWantRadius,
+      ];
+      for (const offer of allOffers) {
+        const { id: offerId, ...offerData } = offer;
+        await db.doc(`${offersCollectionPath}/${offerId}`).set(offerData);
+      }
+
+      jest.spyOn(wantsService, 'getWantById').mockResolvedValueOnce(want);
+
+      const expectedResult = [offerInWantRadiusAndWantInOwnRadius, anotherOfferInWantRadiusAndWantInOwnRadius];
+
+      const result = await offersService.listOffersByWantId(want.id);
+
+      expect(result).toStrictEqual(expectedResult);
+    });
+
+    it('given Want does not exist then should throw not found', async () => {
+      const wantId = faker.datatype.uuid();
+
+      const expectedError = new AppError(CommonErrors.NotFound, `Want ${wantId} not found`)
+
+      jest.spyOn(wantsService, 'getWantById').mockResolvedValueOnce(undefined);
+
+      await expect(offersService.listOffersByWantId(wantId)).rejects.toThrow(expectedError)
+
+    })
+  });
+
   describe('deleteOfferById', () => {
     it('should delete an Offer', async () => {
       const offer: Offer = {
@@ -187,11 +339,8 @@ describe('offers-service', () => {
         userId: faker.datatype.uuid(),
         title: 'All for $20! Haircut, manicure, and pedicure',
         categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
-        center: {
-          latitude: Number.parseFloat(faker.address.latitude()),
-          longitude: Number.parseFloat(faker.address.longitude()),
-        },
-        radius: faker.datatype.number(),
+        center: getRandomCenter(),
+        radiusInMeters: faker.datatype.number(),
       };
 
       const { id, ...wantData } = offer;

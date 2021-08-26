@@ -1,10 +1,10 @@
-import { Coordinates } from '../common/types';
+import { Location } from '../common/types';
 
 export interface Want {
   id: string;
   userId: string;
   title: string;
   categories: string[];
-  center: Coordinates;
-  radius: number;
+  center: Location;
+  radiusInMeters: number;
 }

@@ -1,9 +1,11 @@
 import { nanoid } from 'nanoid';
+import * as geofire from 'geofire-common';
+import { Coordinates } from '../common/types';
 import { usersService } from '../users';
 import { db } from '../db';
+import { wantsService } from '../wants';
 import { Offer } from './offer';
 import { AppError, CommonErrors } from '../error-management/errors';
-import { Coordinates } from '../common/types';
 
 const offersCollectionPath = 'offers';
 
@@ -25,14 +27,22 @@ export async function createOffer(
     throw new AppError(CommonErrors.NotFound, `User ${userId} not found`);
   }
 
+  const geohash = geofire.geohashForLocation([
+    options.center.latitude,
+    options.center.longitude,
+  ]);
+
   const offer: Offer = {
     id: nanoid(),
     userId,
     title: options.title,
     description: options.description,
     categories: options.categories,
-    center: options.center,
-    radius: options.radius,
+    center: {
+      ...options.center,
+      geohash,
+    },
+    radiusInMeters: options.radius,
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -77,6 +87,53 @@ export async function listOffersByUserId(userId: string): Promise<Offer[]> {
       ...documentData,
     };
   });
+}
+
+export async function listOffersByWantId(wantId: string): Promise<Offer[]> {
+  const want = await wantsService.getWantById(wantId);
+
+  if (!want) {
+    throw new AppError(CommonErrors.NotFound, `Want ${wantId} not found`);
+  }
+
+  const bounds = geofire.geohashQueryBounds(
+    [want.center.latitude, want.center.longitude],
+    want.radiusInMeters
+  );
+
+  const promises = [];
+  for (const b of bounds) {
+    const offersInWantRadiusQuery = db
+      .collection(offersCollectionPath)
+      .orderBy('center.geohash')
+      .startAt(b[0])
+      .endAt(b[1]);
+
+    promises.push(offersInWantRadiusQuery.get());
+  }
+
+  const offersInWantRadiusSnapshots = await Promise.all(promises);
+
+  return offersInWantRadiusSnapshots
+    .map((snapshot) => {
+      return snapshot.docs.map((document): Offer => {
+        return {
+          id: document.id,
+          ...(document.data() as Omit<Offer, 'id'>),
+        };
+      });
+    })
+    .flat()
+    .filter((offer) => {
+      const offerLocation = [offer.center.latitude, offer.center.longitude];
+      const wantLocation = [want.center.latitude, want.center.longitude];
+      const distanceInMeters =
+        geofire.distanceBetween(offerLocation, wantLocation) * 1000;
+      return (
+        distanceInMeters <= offer.radiusInMeters &&
+        distanceInMeters <= want.radiusInMeters
+      );
+    });
 }
 
 export async function deleteOfferById(id: string): Promise<void> {

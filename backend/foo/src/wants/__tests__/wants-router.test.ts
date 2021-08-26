@@ -39,14 +39,18 @@ describe('wants-router', () => {
         latitude: Number.parseFloat(faker.address.latitude()),
         longitude: Number.parseFloat(faker.address.longitude()),
       },
-      radius: 5000,
+      radiusInMeters: 5000,
     };
 
     it('should create a Want and return it', (done) => {
       const want: Want = {
+        ...body,
         id: faker.datatype.uuid(),
         userId: user.id,
-        ...body,
+        center: {
+          ...body.center,
+          geohash: faker.random.alphaNumeric(),
+        },
       };
 
       jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValueOnce(user);
@@ -104,8 +108,8 @@ describe('wants-router', () => {
         });
     });
 
-    it('given the User does not exist then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+    it('given the User is not found then should return not found', (done) => {
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -191,8 +195,9 @@ describe('wants-router', () => {
         center: {
           latitude: Number.parseFloat(faker.address.latitude()),
           longitude: Number.parseFloat(faker.address.longitude()),
+          geohash: faker.random.alphaNumeric(),
         },
-        radius: 3000,
+        radiusInMeters: 3000,
       },
     ];
 
@@ -251,7 +256,7 @@ describe('wants-router', () => {
         });
     });
 
-    it('given the User does not exist then should return not found', (done) => {
+    it('given the User is not found then should return not found', (done) => {
       const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
@@ -323,7 +328,7 @@ describe('wants-router', () => {
     });
   });
 
-  describe('DELETE /want/:id', () => {
+  describe('DELETE /wants/:id', () => {
     const want: Want = {
       id: faker.datatype.uuid(),
       userId: user.id,
@@ -332,8 +337,9 @@ describe('wants-router', () => {
       center: {
         latitude: Number.parseFloat(faker.address.latitude()),
         longitude: Number.parseFloat(faker.address.longitude()),
+        geohash: faker.random.alphaNumeric(),
       },
-      radius: 1000,
+      radiusInMeters: 1000,
     };
 
     const url = `/wants/${want.id}`;
@@ -395,7 +401,7 @@ describe('wants-router', () => {
     });
 
     it('given the User is not found then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -419,7 +425,7 @@ describe('wants-router', () => {
     });
 
     it('given the Want is not found then should return not found', (done) => {
-      const errorMessage = `Want ${want.id} does not exist`;
+      const errorMessage = `Want ${want.id} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -428,9 +434,7 @@ describe('wants-router', () => {
         },
       };
 
-      const error = new AppError(CommonErrors.NotFound, errorMessage);
-
-      jest.spyOn(wantsService, 'getWantById').mockRejectedValueOnce(error);
+      jest.spyOn(wantsService, 'getWantById').mockResolvedValueOnce(undefined);
 
       request(app)
         .delete(url)

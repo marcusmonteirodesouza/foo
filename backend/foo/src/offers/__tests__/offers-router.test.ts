@@ -41,14 +41,18 @@ describe('offers-router', () => {
         latitude: Number.parseFloat(faker.address.latitude()),
         longitude: Number.parseFloat(faker.address.longitude()),
       },
-      radius: 5000,
+      radiusInMeters: 5000,
     };
 
     it('should create a Offer and return it', (done) => {
       const offer: Offer = {
+        ...body,
         id: faker.datatype.uuid(),
         userId: user.id,
-        ...body,
+        center: {
+          ...body.center,
+          geohash: faker.random.alphaNumeric(),
+        },
       };
 
       jest.spyOn(usersService, 'getOrCreateUser').mockResolvedValueOnce(user);
@@ -106,8 +110,8 @@ describe('offers-router', () => {
         });
     });
 
-    it('given the User does not exist then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+    it('given the User is not found then should return not found', (done) => {
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -181,6 +185,92 @@ describe('offers-router', () => {
     });
   });
 
+  describe('GET /offers/wants/:id', () => {
+    const wantId = faker.datatype.uuid();
+
+    const url = `/offers/wants/${wantId}`;
+
+    const offers: Offer[] = [
+      {
+        id: faker.datatype.uuid(),
+        userId: user.id,
+        title: 'Promotion near you',
+        categories: ['promotion', 'offer'],
+        center: {
+          latitude: Number.parseFloat(faker.address.latitude()),
+          longitude: Number.parseFloat(faker.address.longitude()),
+          geohash: faker.random.alphaNumeric(),
+        },
+        radiusInMeters: 3000,
+      },
+    ];
+
+    it("should return the list of Offers relevant to the Want", (done) => {
+      jest
+        .spyOn(offersService, 'listOffersByWantId')
+        .mockResolvedValueOnce(offers);
+
+      request(app)
+        .get(url)
+        .expect('content-type', /json/)
+        .expect(200)
+        .then((response) => {
+          expect(response.body).toStrictEqual(offers);
+          done();
+        });
+    });
+
+    it('given the Want is not found then should return not found', (done) => {
+      const errorMessage = `Want ${wantId} not found`;
+
+      const expectedResponse: ErrorResponse = {
+        error: {
+          code: ReasonPhrases.NOT_FOUND,
+          message: errorMessage,
+        },
+      };
+
+      const error = new AppError(CommonErrors.NotFound, errorMessage);
+
+      jest
+        .spyOn(offersService, 'listOffersByWantId')
+        .mockRejectedValueOnce(error);
+
+      request(app)
+        .get(url)
+        .set('authorization', authorization)
+        .expect('content-type', /json/)
+        .expect(404)
+        .then((response) => {
+          expect(response.body).toStrictEqual(expectedResponse);
+          done();
+        });
+    });
+
+    it('given listOffersByWantId throws an unexpected Error then should return internal server error', (done) => {
+      const expectedResponse: ErrorResponse = {
+        error: {
+          code: ReasonPhrases.INTERNAL_SERVER_ERROR,
+          message: 'Something went wrong',
+        },
+      };
+
+      jest
+        .spyOn(offersService, 'listOffersByWantId')
+        .mockRejectedValueOnce(new Error('error!'));
+
+      request(app)
+        .get(url)
+        .set('authorization', authorization)
+        .expect('content-type', /json/)
+        .expect(500)
+        .then((response) => {
+          expect(response.body).toStrictEqual(expectedResponse);
+          done();
+        });
+    });
+  });
+
   describe('GET /offers/users/:id', () => {
     const url = `/offers/users/${user.id}`;
 
@@ -193,8 +283,9 @@ describe('offers-router', () => {
         center: {
           latitude: Number.parseFloat(faker.address.latitude()),
           longitude: Number.parseFloat(faker.address.longitude()),
+          geohash: faker.random.alphaNumeric(),
         },
-        radius: 3000,
+        radiusInMeters: 3000,
       },
     ];
 
@@ -213,8 +304,8 @@ describe('offers-router', () => {
         });
     });
 
-    it('given the User does not exist then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+    it('given the User is not found then should return not found', (done) => {
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -225,7 +316,9 @@ describe('offers-router', () => {
 
       const error = new AppError(CommonErrors.NotFound, errorMessage);
 
-      jest.spyOn(offersService, 'listOffersByUserId').mockRejectedValueOnce(error);
+      jest
+        .spyOn(offersService, 'listOffersByUserId')
+        .mockRejectedValueOnce(error);
 
       request(app)
         .get(url)
@@ -272,8 +365,9 @@ describe('offers-router', () => {
       center: {
         latitude: Number.parseFloat(faker.address.latitude()),
         longitude: Number.parseFloat(faker.address.longitude()),
+        geohash: faker.random.alphaNumeric(),
       },
-      radius: 1000,
+      radiusInMeters: 1000,
     };
 
     const url = `/offers/${offer.id}`;
@@ -335,7 +429,7 @@ describe('offers-router', () => {
     });
 
     it('given the User is not found then should return not found', (done) => {
-      const errorMessage = `User ${user.uid} does not exist`;
+      const errorMessage = `User ${user.uid} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {
@@ -359,7 +453,7 @@ describe('offers-router', () => {
     });
 
     it('given the Offer is not found then should return not found', (done) => {
-      const errorMessage = `Offer ${offer.id} does not exist`;
+      const errorMessage = `Offer ${offer.id} not found`;
 
       const expectedResponse: ErrorResponse = {
         error: {

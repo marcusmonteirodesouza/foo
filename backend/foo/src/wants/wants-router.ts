@@ -27,7 +27,7 @@ router.post(
           latitude: Joi.number().required(),
           longitude: Joi.number().required(),
         }),
-        radius: Joi.number().required(),
+        radiusInMeters: Joi.number().required(),
       })
       .required(),
   }),
@@ -42,7 +42,7 @@ router.post(
         title: request.title,
         categories: request.categories,
         center: request.center,
-        radius: request.radius,
+        radius: request.radiusInMeters,
       });
 
       res.status(StatusCodes.CREATED).json(want);
@@ -92,6 +92,10 @@ router.delete(
       const user = await usersService.getOrCreateUser({ uid: req.uid });
 
       const want = await wantsService.getWantById(id);
+
+      if (!want) {
+        throw new AppError(CommonErrors.NotFound, `Want ${id} not found`);
+      }
 
       if (user.id !== want.userId) {
         logger.error(`User ${user.id} not allowed to delete want ${want.id}`);

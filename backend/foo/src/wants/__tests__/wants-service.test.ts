@@ -1,5 +1,6 @@
 import faker from 'faker';
 import nanoid from 'nanoid';
+import * as geofire from 'geofire-common';
 import { db } from '../../db';
 import { AppError, CommonErrors } from '../../error-management/errors';
 import { usersService, User } from '../../users';
@@ -8,6 +9,21 @@ import * as wantsService from '../wants-service';
 
 describe('wants-service', () => {
   const wantsCollectionPath = 'wants';
+
+  function getRandomCenter(): {
+    latitude: number;
+    longitude: number;
+    geohash: string;
+  } {
+    const latitude = Number.parseFloat(faker.address.latitude());
+    const longitude = Number.parseFloat(faker.address.longitude());
+    const geohash = geofire.geohashForLocation([latitude, longitude]);
+    return {
+      latitude,
+      longitude,
+      geohash,
+    };
+  }
 
   afterEach(() => {
     jest.restoreAllMocks();
@@ -75,11 +91,8 @@ describe('wants-service', () => {
         userId: faker.datatype.uuid(),
         title: 'Haircuts, sallons, manicures, pedicures',
         categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
-        center: {
-          latitude: Number.parseFloat(faker.address.latitude()),
-          longitude: Number.parseFloat(faker.address.longitude()),
-        },
-        radius: faker.datatype.number(),
+        center: getRandomCenter(),
+        radiusInMeters: faker.datatype.number(),
       };
 
       const { id: wantId, ...wantData } = want;
@@ -91,17 +104,12 @@ describe('wants-service', () => {
       expect(result).toStrictEqual(want);
     });
 
-    it('given the Want does not exist then should throw not found', async () => {
+    it('given the Want does not exist then should return undefined', async () => {
       const wantId = faker.datatype.uuid();
 
-      const expectedError = new AppError(
-        CommonErrors.NotFound,
-        `Want ${wantId} not found`
-      );
+      const result = await wantsService.getWantById(wantId);
 
-      await expect(wantsService.getWantById(wantId)).rejects.toThrow(
-        expectedError
-      );
+      expect(result).toBeUndefined();
     });
   });
 
@@ -120,22 +128,16 @@ describe('wants-service', () => {
           userId: user.id,
           title: 'Pizzas and pasta',
           categories: ['pizza', 'pasta', 'food', 'italian'],
-          center: {
-            latitude: Number.parseFloat(faker.address.latitude()),
-            longitude: Number.parseFloat(faker.address.longitude()),
-          },
-          radius: faker.datatype.number(),
+          center: getRandomCenter(),
+          radiusInMeters: faker.datatype.number(),
         },
         {
           id: faker.datatype.uuid(),
           userId: user.id,
           title: 'Haircuts, sallons, manicures, pedicures',
           categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
-          center: {
-            latitude: Number.parseFloat(faker.address.latitude()),
-            longitude: Number.parseFloat(faker.address.longitude()),
-          },
-          radius: faker.datatype.number(),
+          center: getRandomCenter(),
+          radiusInMeters: faker.datatype.number(),
         },
       ];
 
@@ -178,11 +180,8 @@ describe('wants-service', () => {
         userId: faker.datatype.uuid(),
         title: 'Haircuts, sallons, manicures, pedicures',
         categories: ['haircut', 'sallon', 'manicure', 'pedicure', 'beauty'],
-        center: {
-          latitude: Number.parseFloat(faker.address.latitude()),
-          longitude: Number.parseFloat(faker.address.longitude()),
-        },
-        radius: faker.datatype.number(),
+        center: getRandomCenter(),
+        radiusInMeters: faker.datatype.number(),
       };
 
       const { id, ...wantData } = want;
